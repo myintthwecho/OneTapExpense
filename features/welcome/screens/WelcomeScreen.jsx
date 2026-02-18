@@ -32,7 +32,7 @@ export default function WelcomeScreen() {
 
       {/* Hero Text */}
       <ThemedText style={styles.heroText}>
-        Track your expenses in seconds with one tap.
+        Track your expenses in just one tap.
       </ThemedText>
 
       <Spacer height={50} />

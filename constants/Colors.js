@@ -1,6 +1,6 @@
 const Colors = {
-  primary: '#2F6F5F',        // dark matte green (brand color)
-  secondary: '#6BC5B3',      // soft mint accent
+  primary: '#1f9f7f',        // dark matte green (brand color)
+  secondary: '#5f807b',      // dimmed mint accent
 
   success: '#3CB371',        // success green
   warning: '#D64545',        // delete / error red
