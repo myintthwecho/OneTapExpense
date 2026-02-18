@@ -92,7 +92,7 @@ export default function AddExpenseScreen() {
       <ThemedView
         style={[
           styles.cardPanel,
-          { opacity: 0.95, borderWidth: 1, borderColor: themeColors.border },
+          {  borderWidth: 1, borderColor: themeColors.border },
         ]}
       >
         <ScrollView
