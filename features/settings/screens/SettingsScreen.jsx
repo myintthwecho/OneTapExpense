@@ -4,6 +4,7 @@ import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
 import { useRouter } from "expo-router";
 import {
+  Image,
  
     ScrollView,
     StyleSheet,
@@ -72,7 +73,10 @@ export default function SettingsScreen() {
           >
             <View style={styles.profileRow}>
               <View style={styles.avatar}>
-                <ThemedText style={styles.avatarText}>KT</ThemedText>
+                <Image
+                  source={require("@/assets/images/avt.png")}
+                  style={styles.avatarImage}
+                />
               </View>
               <View style={styles.profileInfo}>
                 <ThemedText style={styles.profileName}>{user.name}</ThemedText>
@@ -173,11 +177,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     alignItems: "center",
     justifyContent: "center",
+    overflow: "hidden",
   },
-  avatarText: {
-    color: "#FFFFFF",
-    fontSize: 20,
-    fontWeight: "700",
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
   profileInfo: {
     flex: 1,
