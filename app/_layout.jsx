@@ -29,6 +29,13 @@ export default function RootLayout() {
             title: "Register",
           }}
         />
+        <Stack.Screen
+          name="expense-history"
+          options={{
+            headerShown: true,
+            title: "Expense History",
+          }}
+        />
         {/* TODO: Implement (tabs) and modal screens */}
         {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> */}
         {/* <Stack.Screen

@@ -4,6 +4,7 @@ import Spacer from "@/components/ui/Spacer";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
+import { useRouter } from "expo-router";
 import { useColorScheme } from "react-native";
 import { useState } from "react";
 import {
@@ -14,6 +15,7 @@ import {
 } from "react-native";
 
 export default function LoginScreen() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const colorScheme = useColorScheme();
@@ -22,6 +24,7 @@ export default function LoginScreen() {
   const handleLogin = () => {
     // TODO: Implement authentication logic
     console.log("Login pressed", { email, password });
+    router.push("/expense-history");
   };
 
   return (
