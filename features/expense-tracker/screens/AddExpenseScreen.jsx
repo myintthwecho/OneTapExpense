@@ -12,7 +12,9 @@ import {
     TouchableOpacity,
     useColorScheme,
     View,
+    Platform,
 } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const categories = [
   { id: "food", label: "Food", emoji: "🍜" },
@@ -25,11 +27,62 @@ export default function AddExpenseScreen() {
   const router = useRouter();
   const [amount, setAmount] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme] || Colors.light;
 
+  const formatDate = (date) => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const dateOnly = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+    );
+    const todayOnly = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+    );
+    const yesterdayOnly = new Date(
+      yesterday.getFullYear(),
+      yesterday.getMonth(),
+      yesterday.getDate(),
+    );
+
+    if (dateOnly.getTime() === todayOnly.getTime()) return "Today";
+    if (dateOnly.getTime() === yesterdayOnly.getTime()) return "Yesterday";
+
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const [showPicker, setShowPicker] = useState(false);
+
+  const handleDatePress = () => {
+    setShowPicker(true);
+  };
+
+  const handleDateChange = (event, date) => {
+    if (Platform.OS === "android") {
+      setShowPicker(false);
+    }
+    if (date) {
+      setSelectedDate(date);
+    }
+  };
+
   const handleSaveExpense = () => {
-    console.log("Expense saved", { amount, selectedCategory });
+    console.log("Expense saved", {
+      amount,
+      selectedCategory,
+      date: selectedDate,
+    });
     router.back();
   };
 
@@ -124,8 +177,22 @@ export default function AddExpenseScreen() {
 
           <Spacer height={24} />
 
-          {/* Date Display */}
-          <ThemedText style={styles.dateText}>Date: Today</ThemedText>
+          {/* Date Button */}
+          <ThemedText style={styles.label}>Date</ThemedText>
+          <TouchableOpacity
+            style={[
+              styles.dateButton,
+              {
+                borderColor: themeColors.border,
+                backgroundColor: themeColors.inputBackground,
+              },
+            ]}
+            onPress={handleDatePress}
+          >
+            <ThemedText style={styles.dateButtonText}>
+              {formatDate(selectedDate)}
+            </ThemedText>
+          </TouchableOpacity>
 
           <Spacer height={32} />
 
@@ -133,6 +200,16 @@ export default function AddExpenseScreen() {
           <PrimaryButton title="Save Expense" onPress={handleSaveExpense} />
         </ScrollView>
       </ThemedView>
+
+      {/* Date/Time Picker */}
+      {showPicker && (
+        <DateTimePicker
+          value={selectedDate}
+          mode="date"
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          onChange={handleDateChange}
+        />
+      )}
     </View>
   );
 }
@@ -194,8 +271,16 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textAlign: "center",
   },
-  dateText: {
-    fontSize: 14,
+  dateButton: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  dateButtonText: {
+    fontSize: 16,
     fontWeight: "500",
   },
 });
