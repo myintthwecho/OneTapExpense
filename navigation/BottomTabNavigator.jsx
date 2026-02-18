@@ -15,7 +15,7 @@ export default function BottomTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: true,
+        headerShown: false,
         tabBarStyle: {
           backgroundColor: themeColors.navBackground,
           borderTopColor: themeColors.border,
@@ -58,27 +58,9 @@ export default function BottomTabNavigator() {
         },
       })}
     >
-      <Tab.Screen
-        name="history"
-        component={ExpenseHistoryScreen}
-        options={{
-          title: "History",
-        }}
-      />
-      <Tab.Screen
-        name="summary"
-        component={SummaryScreen}
-        options={{
-          title: "Summary",
-        }}
-      />
-      <Tab.Screen
-        name="settings"
-        component={SettingsScreen}
-        options={{
-          title: "Settings",
-        }}
-      />
+      <Tab.Screen name="history" component={ExpenseHistoryScreen} />
+      <Tab.Screen name="summary" component={SummaryScreen} />
+      <Tab.Screen name="settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
 }
