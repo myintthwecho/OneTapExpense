@@ -1,5 +1,5 @@
-import ExpenseHistoryScreen from "@/features/expense-tracker/screens/ExpenseHistoryScreen";
+import BottomTabNavigator from "@/navigation/BottomTabNavigator";
 
 export default function ExpenseHistory() {
-  return <ExpenseHistoryScreen />;
+  return <BottomTabNavigator />;
 }

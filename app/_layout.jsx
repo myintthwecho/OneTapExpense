@@ -1,4 +1,3 @@
-import { useColorScheme } from "react-native";
 import {
     DarkTheme,
     DefaultTheme,
@@ -6,6 +5,7 @@ import {
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useColorScheme } from "react-native";
 import "react-native-reanimated";
 
 export default function RootLayout() {
@@ -32,8 +32,7 @@ export default function RootLayout() {
         <Stack.Screen
           name="expense-history"
           options={{
-            headerShown: true,
-            title: "Expense History",
+            headerShown: false,
           }}
         />
         <Stack.Screen
