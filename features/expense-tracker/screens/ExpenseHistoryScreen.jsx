@@ -1,9 +1,17 @@
-import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
-import { ThemedView } from "@/components/ui/ThemedView";
-import { ThemedText } from "@/components/ui/ThemedText";
+import PrimaryButton from "@/components/ui/PrimaryButton";
 import Spacer from "@/components/ui/Spacer";
+import { ThemedText } from "@/components/ui/ThemedText";
+import { ThemedView } from "@/components/ui/ThemedView";
+import { useRouter } from "expo-router";
+import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
 
 export default function ExpenseHistoryScreen() {
+  const router = useRouter();
+
+  const handleOpenAddExpense = () => {
+    router.push("/add-expense");
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ThemedView style={styles.container}>
@@ -15,7 +23,8 @@ export default function ExpenseHistoryScreen() {
           <Spacer height={20} />
 
           <ThemedText style={styles.description}>
-            Your expense history will appear here. Track all your transactions in one place.
+            Your expense history will appear here. Track all your transactions
+            in one place.
           </ThemedText>
 
           <Spacer height={30} />
@@ -24,6 +33,11 @@ export default function ExpenseHistoryScreen() {
             No expenses recorded yet. Start by adding your first expense!
           </ThemedText>
         </ScrollView>
+
+        {/* Add Expense Button */}
+        <View style={styles.buttonContainer}>
+          <PrimaryButton title="+ Add Expense" onPress={handleOpenAddExpense} />
+        </View>
       </ThemedView>
     </SafeAreaView>
   );
@@ -34,7 +48,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    flex: 1,
+    flexGrow: 1,
     paddingHorizontal: 24,
     paddingTop: 20,
     paddingBottom: 20,
@@ -54,5 +68,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontStyle: "italic",
     marginTop: 20,
+  },
+  buttonContainer: {
+    paddingHorizontal: 24,
+    paddingBottom: 20,
+    paddingTop: 12,
   },
 });
