@@ -3,10 +3,11 @@ import Spacer from "@/components/ui/Spacer";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
 import { useRouter } from "expo-router";
-import { Image, StyleSheet } from "react-native";
+import { Image, StyleSheet, useColorScheme, View } from "react-native";
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
 
   const handleLogin = () => {
     router.push("/login");
@@ -18,32 +19,35 @@ export default function WelcomeScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      {/* Logo */}
-      <Image source={require("@/assets/images/icon.png")} style={styles.logo} />
+      <Spacer height={30} />
 
-      <Spacer height={40} />
+      <View style={styles.logoBlock}>
+        <Image
+          source={
+            colorScheme === "dark"
+              ? require("@/assets/images/darklogo.png")
+              : require("@/assets/images/lightlogo.png")
+          }
+          style={styles.logo}
+        />
+      </View>
 
-      {/* App Name */}
-      <ThemedText title style={styles.appName}>
-        OneTapExpense
-      </ThemedText>
+      <View style={styles.heroBlock}>
+        <ThemedText title style={styles.appName}>
+          OneTapExpense
+        </ThemedText>
+        <ThemedText style={styles.heroText}>
+          Track your expenses in one tap.
+        </ThemedText>
+      </View>
 
-      <Spacer height={20} />
-
-      {/* Hero Text */}
-      <ThemedText style={styles.heroText}>
-        Track your expenses in just one tap.
-      </ThemedText>
-
-      <Spacer height={50} />
-
-      {/* Login Button */}
-      <PrimaryButton title="Login" onPress={handleLogin} />
+      <View style={styles.actionsBlock}>
+        <PrimaryButton title="Get Started" onPress={handleRegister} />
+        <Spacer height={14} />
+        <PrimaryButton title="Log In" onPress={handleLogin} />
+      </View>
 
       <Spacer height={16} />
-
-      {/* Register Button */}
-      <PrimaryButton title="Register" onPress={handleRegister} />
     </ThemedView>
   );
 }
@@ -55,19 +59,34 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 24,
   },
+  logoBlock: {
+    alignItems: "center",
+    marginBottom: 28,
+  },
   logo: {
-    width: 100,
-    height: 100,
+    width: 200,
+    height: 200,
     resizeMode: "contain",
   },
+  heroBlock: {
+    alignItems: "center",
+    marginBottom: 36,
+  },
   appName: {
-    fontSize: 28,
-    fontWeight: "bold",
+    fontSize: 30,
+    fontWeight: "700",
     textAlign: "center",
+    marginBottom: 8,
   },
   heroText: {
-    fontSize: 18,
+    fontSize: 16,
+    fontWeight: "500",
     textAlign: "center",
-    lineHeight: 24,
+    lineHeight: 22,
+    maxWidth: 260,
+  },
+  actionsBlock: {
+    width: "100%",
+    maxWidth: 320,
   },
 });
