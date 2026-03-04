@@ -7,13 +7,7 @@ import { useAuth } from "@/features/auth/context/AuthContext";
 import { db } from "@/services/firebase";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-  addDoc,
-  collection,
-  doc,
-  serverTimestamp,
-  updateDoc,
-} from "firebase/firestore";
+import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
   Platform,
@@ -110,6 +104,7 @@ export default function AddExpenseScreen() {
 
     try {
       setIsSaving(true);
+      const now = new Date().toISOString();
 
       if (isEditMode && params.expenseId) {
         const expenseRef = doc(
@@ -119,27 +114,35 @@ export default function AddExpenseScreen() {
           "expenses",
           params.expenseId,
         );
+
+        // Navigate back immediately for instant feel
+        router.back();
+
+        // Update in background
         await updateDoc(expenseRef, {
           amount: parseFloat(amount),
           category: selectedCategory,
           note: note || "",
           date: selectedDate.toISOString(),
-          updatedAt: serverTimestamp(),
+          updatedAt: now,
         });
       } else {
         const expensesRef = collection(db, "users", user.uid, "expenses");
+
+        // Navigate back immediately for instant feel
+        router.back();
+
+        // Save in background
         await addDoc(expensesRef, {
           userId: user.uid,
           amount: parseFloat(amount),
           category: selectedCategory,
           note: note || "",
           date: selectedDate.toISOString(),
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
+          createdAt: now,
+          updatedAt: now,
         });
       }
-
-      router.back();
     } catch (error) {
       console.error("Error saving expense:", error);
       alert("Failed to save expense. Please try again.");
