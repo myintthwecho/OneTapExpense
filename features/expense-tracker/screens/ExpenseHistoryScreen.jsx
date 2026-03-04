@@ -75,17 +75,38 @@ export default function ExpenseHistoryScreen() {
   useEffect(() => {
     if (!user) return;
 
+    console.log("📊 Setting up expense listener for user:", user.uid);
+
     const expensesRef = collection(db, "users", user.uid, "expenses");
     const q = query(expensesRef, orderBy("createdAt", "desc"));
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const loadedExpenses = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setExpenses(loadedExpenses);
-      setIsLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        console.log("📥 Expenses loaded from Firebase:", {
+          count: snapshot.docs.length,
+          docs: snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          })),
+        });
+
+        const loadedExpenses = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setExpenses(loadedExpenses);
+        setIsLoading(false);
+      },
+      (error) => {
+        console.error("❌ Error loading expenses:", error);
+        console.error("Error details:", {
+          code: error.code,
+          message: error.message,
+        });
+        setIsLoading(false);
+      },
+    );
 
     return unsubscribe;
   }, [user]);

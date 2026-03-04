@@ -16,11 +16,18 @@ const firebaseConfig = {
 };
 
 // Debug: Log config to verify env vars are loading
-console.log("Firebase initialized with projectId:", firebaseConfig.projectId);
+console.log("🔧 Firebase Configuration:", {
+  projectId: firebaseConfig.projectId,
+  authDomain: firebaseConfig.authDomain,
+  hasApiKey: !!firebaseConfig.apiKey,
+  environment: process.env.NODE_ENV,
+});
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+console.log("✅ Firebase initialized successfully");
 
 // Enable persistent auth sessions (async initialization)
 if (typeof window !== "undefined") {

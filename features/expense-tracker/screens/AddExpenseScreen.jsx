@@ -99,6 +99,11 @@ export default function AddExpenseScreen() {
 
   const handleSaveExpense = async () => {
     if (!amount || !selectedCategory || !user) {
+      console.warn("❌ Save blocked: Missing required fields", {
+        amount: !!amount,
+        selectedCategory: !!selectedCategory,
+        user: !!user,
+      });
       return;
     }
 
@@ -115,22 +120,31 @@ export default function AddExpenseScreen() {
           params.expenseId,
         );
 
-        // Wait for update to complete
-        await updateDoc(expenseRef, {
+        const updateData = {
           amount: parseFloat(amount),
           category: selectedCategory,
           note: note || "",
           date: selectedDate.toISOString(),
           updatedAt: now,
+        };
+
+        console.log("📝 Updating expense:", {
+          expenseId: params.expenseId,
+          userId: user.uid,
+          data: updateData,
         });
+
+        // Wait for update to complete
+        await updateDoc(expenseRef, updateData);
+
+        console.log("✅ Expense updated successfully in Firebase");
 
         // Navigate back after successful save
         router.back();
       } else {
         const expensesRef = collection(db, "users", user.uid, "expenses");
 
-        // Wait for save to complete
-        await addDoc(expensesRef, {
+        const newExpenseData = {
           userId: user.uid,
           amount: parseFloat(amount),
           category: selectedCategory,
@@ -138,14 +152,32 @@ export default function AddExpenseScreen() {
           date: selectedDate.toISOString(),
           createdAt: now,
           updatedAt: now,
+        };
+
+        console.log("💾 Saving new expense:", {
+          userId: user.uid,
+          data: newExpenseData,
+        });
+
+        // Wait for save to complete
+        const docRef = await addDoc(expensesRef, newExpenseData);
+
+        console.log("✅ Expense saved successfully to Firebase:", {
+          docId: docRef.id,
+          path: `users/${user.uid}/expenses/${docRef.id}`,
         });
 
         // Navigate back after successful save
         router.back();
       }
     } catch (error) {
-      console.error("Error saving expense:", error);
-      alert("Failed to save expense. Please try again.");
+      console.error("❌ Error saving expense:", error);
+      console.error("Error details:", {
+        code: error.code,
+        message: error.message,
+        name: error.name,
+      });
+      alert(`Failed to save expense: ${error.message}`);
     } finally {
       setIsSaving(false);
     }
