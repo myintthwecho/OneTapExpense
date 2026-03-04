@@ -42,7 +42,7 @@ function RootNavigator() {
       console.log("Redirecting to expense-history (user logged in)");
       router.replace("/expense-history");
     }
-  }, [isLoading, segments, user, router]);
+  }, [isLoading, segments, user]);
 
   if (isLoading) {
     return (
