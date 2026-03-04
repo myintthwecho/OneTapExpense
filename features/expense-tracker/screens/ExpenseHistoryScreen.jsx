@@ -309,7 +309,7 @@ export default function ExpenseHistoryScreen() {
                       onPress={() => handleDeleteExpense(expense.id)}
                     >
                       <ThemedText
-                        style={[styles.actionText, { color: "#FF3B30" }]}
+                        style={[styles.actionText, { color: "#FF7B7B" }]}
                       >
                         🗑️ Delete
                       </ThemedText>
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   deleteButton: {
-    borderColor: "#FF3B30",
+    borderColor: "#FF7B7B",
   },
   actionText: {
     fontSize: 13,
