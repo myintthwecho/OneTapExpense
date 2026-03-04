@@ -23,8 +23,33 @@ In the output, you'll find options to open the app in a
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-
 Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## Firebase Firestore rules
+
+This project includes Firestore security rules in `firestore.rules` and index config in `firestore.indexes.json`.
+
+### Deploy rules
+
+```bash
+firebase login
+firebase use onetapexpense
+firebase deploy --only firestore:rules,firestore:indexes
+```
+
+### Expected expense document path
+
+`users/{uid}/expenses/{expenseId}`
+
+### Required expense fields (rules-validated)
+
+- `userId` (must match authenticated `uid`)
+- `amount` (number, >= 0)
+- `category` (non-empty string)
+- `note` (string)
+- `date` (non-empty string)
+- `createdAt`
+- `updatedAt`

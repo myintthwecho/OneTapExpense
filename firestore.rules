@@ -1,0 +1,50 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function validExpenseData(userId) {
+      return request.resource.data.keys().hasOnly([
+          'userId',
+          'amount',
+          'category',
+          'note',
+          'date',
+          'createdAt',
+          'updatedAt'
+        ])
+        && request.resource.data.userId == userId
+        && request.resource.data.amount is number
+        && request.resource.data.amount >= 0
+        && request.resource.data.category is string
+        && request.resource.data.category.size() > 0
+        && request.resource.data.note is string
+        && request.resource.data.date is string
+        && request.resource.data.date.size() > 0;
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /expenses/{expenseId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && validExpenseData(userId);
+        allow update: if isOwner(userId)
+          && validExpenseData(userId)
+          && request.resource.data.userId == resource.data.userId;
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
