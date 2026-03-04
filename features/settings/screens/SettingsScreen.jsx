@@ -2,10 +2,10 @@ import PrimaryButton from "@/components/ui/PrimaryButton";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
-import { useRouter } from "expo-router";
+import { useAuth } from "@/features/auth/context/AuthContext";
 import {
-  Image,
- 
+    Alert,
+    Image,
     ScrollView,
     StyleSheet,
     TouchableOpacity,
@@ -15,14 +15,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SettingsScreen() {
-  const router = useRouter();
+  const { user, logout } = useAuth();
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme] || Colors.light;
 
-  const user = {
-    name: "Ko Tee",
-    email: "ko.tee@lamduan.mfc.ac.th",
-    university: "Mae Fah Luan University",
+  const profile = {
+    name: user?.displayName || "OneTap User",
+    email: user?.email || "No email",
+    university: "",
   };
 
   const menuSections = [
@@ -52,16 +52,18 @@ export default function SettingsScreen() {
     },
   ];
 
-  const handleLogout = () => {
-    router.replace("/");
-    console.log("User logged out");
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch {
+      Alert.alert("Logout failed", "Please try again.");
+    }
   };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: themeColors.background }}>
       <ThemedView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-     
           <View
             style={[
               styles.profileCard,
@@ -79,13 +81,17 @@ export default function SettingsScreen() {
                 />
               </View>
               <View style={styles.profileInfo}>
-                <ThemedText style={styles.profileName}>{user.name}</ThemedText>
+                <ThemedText style={styles.profileName}>
+                  {profile.name}
+                </ThemedText>
                 <ThemedText style={styles.profileEmail}>
-                  {user.email}
+                  {profile.email}
                 </ThemedText>
-                <ThemedText style={styles.profileMeta}>
-                  {user.university}
-                </ThemedText>
+                {!!profile.university && (
+                  <ThemedText style={styles.profileMeta}>
+                    {profile.university}
+                  </ThemedText>
+                )}
               </View>
             </View>
           </View>

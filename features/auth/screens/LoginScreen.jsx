@@ -4,27 +4,54 @@ import Spacer from "@/components/ui/Spacer";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
-import { useRouter } from "expo-router";
-import { useColorScheme } from "react-native";
+import { useAuth } from "@/features/auth/context/AuthContext";
 import { useState } from "react";
 import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  TextInput,
+    Alert,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    TextInput, useColorScheme
 } from "react-native";
 
 export default function LoginScreen() {
-  const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme] || Colors.light;
 
-  const handleLogin = () => {
-    // TODO: Implement authentication logic
-    console.log("Login pressed", { email, password });
-    router.push("/expense-history");
+  const getLoginErrorMessage = (code) => {
+    if (code === "auth/invalid-email") {
+      return "Please enter a valid email address.";
+    }
+
+    if (code === "auth/invalid-credential") {
+      return "Incorrect email or password.";
+    }
+
+    if (code === "auth/user-disabled") {
+      return "This account has been disabled.";
+    }
+
+    return "Unable to login right now. Please try again.";
+  };
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password) {
+      Alert.alert("Missing fields", "Please enter both email and password.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await login(email, password);
+    } catch (error) {
+      Alert.alert("Login failed", getLoginErrorMessage(error?.code));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -88,7 +115,10 @@ export default function LoginScreen() {
           <Spacer height={50} />
 
           {/* Login Button */}
-          <PrimaryButton title="Login" onPress={handleLogin} />
+          <PrimaryButton
+            title={isSubmitting ? "Logging in..." : "Login"}
+            onPress={handleLogin}
+          />
 
           <Spacer height={24} />
 

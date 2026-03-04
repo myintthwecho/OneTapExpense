@@ -4,25 +4,58 @@ import Spacer from "@/components/ui/Spacer";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
-import { useColorScheme } from "react-native";
+import { useAuth } from "@/features/auth/context/AuthContext";
 import { useState } from "react";
 import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  TextInput,
+    Alert,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    TextInput, useColorScheme
 } from "react-native";
 
 export default function RegisterScreen() {
+  const { register } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme] || Colors.light;
 
-  const handleRegister = () => {
-    // TODO: Implement authentication logic
-    console.log("Register pressed", { name, email, password });
+  const getRegisterErrorMessage = (code) => {
+    if (code === "auth/email-already-in-use") {
+      return "This email is already in use.";
+    }
+
+    if (code === "auth/invalid-email") {
+      return "Please enter a valid email address.";
+    }
+
+    if (code === "auth/weak-password") {
+      return "Password should be at least 6 characters.";
+    }
+
+    return "Unable to create account right now. Please try again.";
+  };
+
+  const handleRegister = async () => {
+    if (!name.trim() || !email.trim() || !password) {
+      Alert.alert(
+        "Missing fields",
+        "Please complete name, email, and password.",
+      );
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await register({ name, email, password });
+    } catch (error) {
+      Alert.alert("Registration failed", getRegisterErrorMessage(error?.code));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -103,12 +136,18 @@ export default function RegisterScreen() {
           <Spacer height={50} />
 
           {/* Register Button */}
-          <PrimaryButton title="Register" onPress={handleRegister} />
+          <PrimaryButton
+            title={isSubmitting ? "Creating account..." : "Register"}
+            onPress={handleRegister}
+          />
 
           <Spacer height={24} />
 
           {/* Login Link */}
-          <SecondaryButton title="Already have an account? Login" route="/login" />
+          <SecondaryButton
+            title="Already have an account? Login"
+            route="/login"
+          />
         </ScrollView>
       </ThemedView>
     </SafeAreaView>
