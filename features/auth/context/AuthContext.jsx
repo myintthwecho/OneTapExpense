@@ -1,10 +1,10 @@
 import { auth } from "@/services/firebase";
 import {
-    createUserWithEmailAndPassword,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    signOut,
-    updateProfile,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile,
 } from "firebase/auth";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
@@ -15,7 +15,12 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log("AuthProvider: Setting up auth listener");
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      console.log(
+        "Auth state changed:",
+        firebaseUser ? `User: ${firebaseUser.email}` : "No user",
+      );
       setUser(firebaseUser);
       setIsLoading(false);
     });

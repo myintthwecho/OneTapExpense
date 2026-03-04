@@ -1,5 +1,9 @@
 import { initializeApp } from "firebase/app";
-import { browserLocalPersistence, getAuth, setPersistence } from "firebase/auth";
+import {
+  browserLocalPersistence,
+  getAuth,
+  setPersistence,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -11,13 +15,22 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
+// Debug: Log config to verify env vars are loading
+console.log("Firebase initialized with projectId:", firebaseConfig.projectId);
+
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Enable persistent auth sessions
-setPersistence(auth, browserLocalPersistence).catch((error) => {
-  console.error("Auth persistence error:", error);
-});
+// Enable persistent auth sessions (async initialization)
+if (typeof window !== "undefined") {
+  setPersistence(auth, browserLocalPersistence)
+    .then(() => {
+      console.log("Auth persistence enabled");
+    })
+    .catch((error) => {
+      console.error("Auth persistence error:", error);
+    });
+}
 
 export default app;
