@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -218,6 +219,7 @@ export default function ExpenseHistoryScreen() {
   };
 
   const handleEditExpense = (expense) => {
+    console.log("📝 Editing expense:", expense);
     router.push({
       pathname: "/add-expense",
       params: {
@@ -231,30 +233,42 @@ export default function ExpenseHistoryScreen() {
   };
 
   const handleDeleteExpense = (expenseId) => {
-    Alert.alert(
-      "Delete Expense",
-      "Are you sure you want to delete this expense?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteDoc(
-                doc(db, "users", user.uid, "expenses", expenseId),
-              );
-            } catch (error) {
-              console.error("Error deleting expense:", error);
-              Alert.alert(
-                "Error",
-                "Failed to delete expense. Please try again.",
-              );
-            }
+    console.log("🗑️ Attempting to delete expense:", expenseId);
+
+    // Web uses window.confirm, mobile uses Alert.alert
+    if (Platform.OS === "web") {
+      const confirmed = window.confirm(
+        "Are you sure you want to delete this expense?",
+      );
+
+      if (confirmed) {
+        deleteExpenseFromFirebase(expenseId);
+      }
+    } else {
+      Alert.alert(
+        "Delete Expense",
+        "Are you sure you want to delete this expense?",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: () => deleteExpenseFromFirebase(expenseId),
           },
-        },
-      ],
-    );
+        ],
+      );
+    }
+  };
+
+  const deleteExpenseFromFirebase = async (expenseId) => {
+    try {
+      console.log("🔥 Deleting from Firestore:", expenseId);
+      await deleteDoc(doc(db, "users", user.uid, "expenses", expenseId));
+      console.log("✅ Expense deleted successfully");
+    } catch (error) {
+      console.error("❌ Error deleting expense:", error);
+      Alert.alert("Error", "Failed to delete expense. Please try again.");
+    }
   };
 
   return (

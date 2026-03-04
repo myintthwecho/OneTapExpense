@@ -8,7 +8,7 @@ import { db } from "@/services/firebase";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Platform,
   ScrollView,
@@ -39,17 +39,25 @@ export default function AddExpenseScreen() {
   const themeColors = Colors[colorScheme] || Colors.light;
 
   const isEditMode = !!params.expenseId;
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
-    if (isEditMode && params) {
+    // Only initialize once when in edit mode with params
+    if (isEditMode && params && !hasInitialized.current) {
+      console.log("📋 Initializing edit form with params:", params);
+
       setAmount(params.amount || "");
       setSelectedCategory(params.category || null);
       setNote(params.note || "");
       if (params.date) {
+        console.log("📅 Setting date from params:", params.date);
         setSelectedDate(new Date(params.date));
       }
+
+      hasInitialized.current = true;
+      console.log("✅ Form initialized for edit mode");
     }
-  }, [isEditMode, params]);
+  }, [isEditMode, params.expenseId]); // Only depend on expenseId, not the entire params object
 
   const formatDate = (date) => {
     const today = new Date();
