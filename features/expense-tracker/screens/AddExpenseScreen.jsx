@@ -290,6 +290,7 @@ export default function AddExpenseScreen() {
                   : "Save Expense"
             }
             onPress={handleSaveExpense}
+            disabled={isSaving || !amount || !selectedCategory}
           />
         </ScrollView>
       </ThemedView>
