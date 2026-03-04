@@ -115,10 +115,7 @@ export default function AddExpenseScreen() {
           params.expenseId,
         );
 
-        // Navigate back immediately for instant feel
-        router.back();
-
-        // Update in background
+        // Wait for update to complete
         await updateDoc(expenseRef, {
           amount: parseFloat(amount),
           category: selectedCategory,
@@ -126,13 +123,13 @@ export default function AddExpenseScreen() {
           date: selectedDate.toISOString(),
           updatedAt: now,
         });
+
+        // Navigate back after successful save
+        router.back();
       } else {
         const expensesRef = collection(db, "users", user.uid, "expenses");
 
-        // Navigate back immediately for instant feel
-        router.back();
-
-        // Save in background
+        // Wait for save to complete
         await addDoc(expensesRef, {
           userId: user.uid,
           amount: parseFloat(amount),
@@ -142,6 +139,9 @@ export default function AddExpenseScreen() {
           createdAt: now,
           updatedAt: now,
         });
+
+        // Navigate back after successful save
+        router.back();
       }
     } catch (error) {
       console.error("Error saving expense:", error);
