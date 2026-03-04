@@ -41,6 +41,11 @@ export default function AddExpenseScreen() {
   const isEditMode = !!params.expenseId;
   const hasInitialized = useRef(false);
 
+  // Reset initialization flag when switching between add/edit or when expenseId changes
+  useEffect(() => {
+    hasInitialized.current = false;
+  }, [params.expenseId]);
+
   useEffect(() => {
     // Only initialize once when in edit mode with params
     if (isEditMode && params && !hasInitialized.current) {
@@ -56,6 +61,14 @@ export default function AddExpenseScreen() {
 
       hasInitialized.current = true;
       console.log("✅ Form initialized for edit mode");
+    } else if (!isEditMode && !hasInitialized.current) {
+      // Reset form for new expense
+      console.log("🆕 Reset form for new expense");
+      setAmount("");
+      setSelectedCategory(null);
+      setNote("");
+      setSelectedDate(new Date());
+      hasInitialized.current = true;
     }
   }, [isEditMode, params.expenseId]); // Only depend on expenseId, not the entire params object
 
