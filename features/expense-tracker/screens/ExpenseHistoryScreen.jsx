@@ -6,12 +6,21 @@ import Colors from "@/constants/Colors";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { db } from "@/services/firebase";
 import { useRouter } from "expo-router";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   View,
   useColorScheme,
 } from "react-native";
@@ -187,6 +196,46 @@ export default function ExpenseHistoryScreen() {
     router.push("/add-expense");
   };
 
+  const handleEditExpense = (expense) => {
+    router.push({
+      pathname: "/add-expense",
+      params: {
+        expenseId: expense.id,
+        amount: expense.amount.toString(),
+        category: expense.category,
+        note: expense.note || "",
+        date: expense.date,
+      },
+    });
+  };
+
+  const handleDeleteExpense = (expenseId) => {
+    Alert.alert(
+      "Delete Expense",
+      "Are you sure you want to delete this expense?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteDoc(
+                doc(db, "users", user.uid, "expenses", expenseId),
+              );
+            } catch (error) {
+              console.error("Error deleting expense:", error);
+              Alert.alert(
+                "Error",
+                "Failed to delete expense. Please try again.",
+              );
+            }
+          },
+        },
+      ],
+    );
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ThemedView style={styles.container}>
@@ -244,6 +293,27 @@ export default function ExpenseHistoryScreen() {
                     <ThemedText style={styles.date}>
                       {formatExpenseDate(expense.date)}
                     </ThemedText>
+                  </View>
+                  <View style={styles.actionRow}>
+                    <TouchableOpacity
+                      style={[
+                        styles.actionButton,
+                        { borderColor: themeColors.border },
+                      ]}
+                      onPress={() => handleEditExpense(expense)}
+                    >
+                      <ThemedText style={styles.actionText}>✏️ Edit</ThemedText>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.deleteButton]}
+                      onPress={() => handleDeleteExpense(expense.id)}
+                    >
+                      <ThemedText
+                        style={[styles.actionText, { color: "#FF3B30" }]}
+                      >
+                        🗑️ Delete
+                      </ThemedText>
+                    </TouchableOpacity>
                   </View>
                 </View>
               ))
@@ -317,6 +387,26 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 12,
     marginLeft: 6,
+  },
+  actionRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 8,
+  },
+  actionButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingVertical: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  deleteButton: {
+    borderColor: "#FF3B30",
+  },
+  actionText: {
+    fontSize: 13,
+    fontWeight: "600",
   },
   buttonContainer: {
     position: "absolute",

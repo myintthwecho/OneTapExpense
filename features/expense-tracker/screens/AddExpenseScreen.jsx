@@ -5,19 +5,25 @@ import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { db } from "@/services/firebase";
-import { useRouter } from "expo-router";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { useState } from "react";
-import {
-    ScrollView,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
-    useColorScheme,
-    View,
-    Platform,
-} from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
+import { useEffect, useState } from "react";
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+} from "react-native";
 
 const categories = [
   { id: "food", label: "Food", emoji: "🍜" },
@@ -28,6 +34,7 @@ const categories = [
 
 export default function AddExpenseScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
   const { user } = useAuth();
   const [amount, setAmount] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -36,6 +43,19 @@ export default function AddExpenseScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme] || Colors.light;
+
+  const isEditMode = !!params.expenseId;
+
+  useEffect(() => {
+    if (isEditMode && params) {
+      setAmount(params.amount || "");
+      setSelectedCategory(params.category || null);
+      setNote(params.note || "");
+      if (params.date) {
+        setSelectedDate(new Date(params.date));
+      }
+    }
+  }, [isEditMode, params]);
 
   const formatDate = (date) => {
     const today = new Date();
@@ -90,17 +110,34 @@ export default function AddExpenseScreen() {
 
     try {
       setIsSaving(true);
-      const expensesRef = collection(db, "users", user.uid, "expenses");
-      
-      await addDoc(expensesRef, {
-        userId: user.uid,
-        amount: parseFloat(amount),
-        category: selectedCategory,
-        note: note || "",
-        date: selectedDate.toISOString(),
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+
+      if (isEditMode && params.expenseId) {
+        const expenseRef = doc(
+          db,
+          "users",
+          user.uid,
+          "expenses",
+          params.expenseId,
+        );
+        await updateDoc(expenseRef, {
+          amount: parseFloat(amount),
+          category: selectedCategory,
+          note: note || "",
+          date: selectedDate.toISOString(),
+          updatedAt: serverTimestamp(),
+        });
+      } else {
+        const expensesRef = collection(db, "users", user.uid, "expenses");
+        await addDoc(expensesRef, {
+          userId: user.uid,
+          amount: parseFloat(amount),
+          category: selectedCategory,
+          note: note || "",
+          date: selectedDate.toISOString(),
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      }
 
       router.back();
     } catch (error) {
@@ -117,7 +154,7 @@ export default function AddExpenseScreen() {
       <ThemedView
         style={[
           styles.cardPanel,
-          {  borderWidth: 1, borderColor: themeColors.border },
+          { borderWidth: 1, borderColor: themeColors.border },
         ]}
       >
         <ScrollView
@@ -126,7 +163,7 @@ export default function AddExpenseScreen() {
         >
           {/* Title */}
           <ThemedText title style={styles.title}>
-            Add Expense
+            {isEditMode ? "Edit Expense" : "Add Expense"}
           </ThemedText>
 
           <Spacer height={24} />
@@ -242,7 +279,13 @@ export default function AddExpenseScreen() {
 
           {/* Save Button */}
           <PrimaryButton
-            title={isSaving ? "Saving..." : "Save Expense"}
+            title={
+              isSaving
+                ? "Saving..."
+                : isEditMode
+                  ? "Update Expense"
+                  : "Save Expense"
+            }
             onPress={handleSaveExpense}
           />
         </ScrollView>
