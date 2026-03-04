@@ -1,129 +1,160 @@
 import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
-import { ScrollView, StyleSheet, View, useColorScheme } from "react-native";
+import { useAuth } from "@/features/auth/context/AuthContext";
+import { db } from "@/services/firebase";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  View,
+  useColorScheme,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+const categoryMap = {
+  food: "🍜",
+  transport: "🚆",
+  entertainment: "🎮",
+  bills: "💡",
+};
+
 export default function SummaryScreen() {
+  const { user } = useAuth();
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme] || Colors.light;
+  const [expenses, setExpenses] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const dummyExpenses = [
-    {
-      id: 1,
-      category: "food",
-      emoji: "🍜",
-      amount: "12.50",
-      date: "Today",
-      note: "Lunch at cafe",
-    },
-    {
-      id: 2,
-      category: "transport",
-      emoji: "🚆",
-      amount: "5.00",
-      date: "Today",
-      note: "Bus fare",
-    },
-    {
-      id: 3,
-      category: "entertainment",
-      emoji: "🎮",
-      amount: "15.99",
-      date: "Yesterday",
-      note: "Movie ticket",
-    },
-    {
-      id: 4,
-      category: "bills",
-      emoji: "💡",
-      amount: "45.00",
-      date: "Feb 17",
-      note: "Electric bill",
-    },
-    {
-      id: 5,
-      category: "food",
-      emoji: "🍜",
-      amount: "8.75",
-      date: "Feb 17",
-      note: "Dinner",
-    },
-    {
-      id: 6,
-      category: "transport",
-      emoji: "🚆",
-      amount: "3.50",
-      date: "Feb 16",
-      note: "Train ticket",
-    },
-    {
-      id: 7,
-      category: "entertainment",
-      emoji: "🎮",
-      amount: "25.00",
-      date: "Feb 16",
-      note: "Concert ticket",
-    },
-    {
-      id: 8,
-      category: "food",
-      emoji: "🍜",
-      amount: "6.25",
-      date: "Feb 15",
-      note: "Breakfast",
-    },
-    {
-      id: 9,
-      category: "bills",
-      emoji: "💡",
-      amount: "20.00",
-      date: "Feb 15",
-      note: "Internet bill",
-    },
-    {
-      id: 10,
-      category: "transport",
-      emoji: "🚆",
-      amount: "4.50",
-      date: "Feb 14",
-      note: "Taxi",
-    },
-    {
-      id: 11,
-      category: "entertainment",
-      emoji: "🎮",
-      amount: "12.00",
-      date: "Feb 14",
-      note: "Game purchase",
-    },
-    {
-      id: 12,
-      category: "food",
-      emoji: "🍜",
-      amount: "22.00",
-      date: "Feb 13",
-      note: "Dinner with friends",
-    },
-  ];
+  useEffect(() => {
+    if (!user) return;
 
-  const parseExpenseDate = (dateLabel) => {
-    const today = new Date();
+    const expensesRef = collection(db, "users", user.uid, "expenses");
+    const q = query(expensesRef, orderBy("createdAt", "desc"));
 
-    if (dateLabel === "Today") return today;
-    if (dateLabel === "Yesterday") {
-      const yesterday = new Date(today);
-      yesterday.setDate(today.getDate() - 1);
-      return yesterday;
-    }
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const loadedExpenses = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setExpenses(loadedExpenses);
+      setIsLoading(false);
+    });
 
-    const parsed = new Date(`${dateLabel} ${today.getFullYear()}`);
-    return Number.isNaN(parsed.getTime()) ? today : parsed;
+    return unsubscribe;
+  }, [user]);
+
+  const dummyExpenses =
+    expenses.length > 0
+      ? expenses
+      : [
+          {
+            id: 1,
+            category: "food",
+            emoji: "🍜",
+            amount: "12.50",
+            date: "Today",
+            note: "Lunch at cafe",
+          },
+          {
+            id: 2,
+            category: "transport",
+            emoji: "🚆",
+            amount: "5.00",
+            date: "Today",
+            note: "Bus fare",
+          },
+          {
+            id: 3,
+            category: "entertainment",
+            emoji: "🎮",
+            amount: "15.99",
+            date: "Yesterday",
+            note: "Movie ticket",
+          },
+          {
+            id: 4,
+            category: "bills",
+            emoji: "💡",
+            amount: "45.00",
+            date: "Feb 17",
+            note: "Electric bill",
+          },
+          {
+            id: 5,
+            category: "food",
+            emoji: "🍜",
+            amount: "8.75",
+            date: "Feb 17",
+            note: "Dinner",
+          },
+          {
+            id: 6,
+            category: "transport",
+            emoji: "🚆",
+            amount: "3.50",
+            date: "Feb 16",
+            note: "Train ticket",
+          },
+          {
+            id: 7,
+            category: "entertainment",
+            emoji: "🎮",
+            amount: "25.00",
+            date: "Feb 16",
+            note: "Concert ticket",
+          },
+          {
+            id: 8,
+            category: "food",
+            emoji: "🍜",
+            amount: "6.25",
+            date: "Feb 15",
+            note: "Breakfast",
+          },
+          {
+            id: 9,
+            category: "bills",
+            emoji: "💡",
+            amount: "20.00",
+            date: "Feb 15",
+            note: "Internet bill",
+          },
+          {
+            id: 10,
+            category: "transport",
+            emoji: "🚆",
+            amount: "4.50",
+            date: "Feb 14",
+            note: "Taxi",
+          },
+          {
+            id: 11,
+            category: "entertainment",
+            emoji: "🎮",
+            amount: "12.00",
+            date: "Feb 14",
+            note: "Game purchase",
+          },
+          {
+            id: 12,
+            category: "food",
+            emoji: "🍜",
+            amount: "22.00",
+            date: "Feb 13",
+            note: "Dinner with friends",
+          },
+        ];
+
+  const parseExpenseDate = (dateString) => {
+    return new Date(dateString);
   };
 
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
 
-  const monthlyExpenses = dummyExpenses.filter((expense) => {
+  const monthlyExpenses = expenses.filter((expense) => {
     const date = parseExpenseDate(expense.date);
     return (
       date.getMonth() === currentMonth && date.getFullYear() === currentYear
@@ -136,7 +167,10 @@ export default function SummaryScreen() {
 
   const categoryTotals = monthlyExpenses.reduce((acc, expense) => {
     if (!acc[expense.category]) {
-      acc[expense.category] = { amount: 0, emoji: expense.emoji };
+      acc[expense.category] = {
+        amount: 0,
+        emoji: categoryMap[expense.category] || "📝",
+      };
     }
     acc[expense.category].amount += Number(expense.amount);
     return acc;
@@ -153,51 +187,59 @@ export default function SummaryScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: themeColors.background }}>
       <ThemedView style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        {isLoading ? (
           <View
-            style={[
-              styles.totalCard,
-              {
-                borderColor: themeColors.border,
-                backgroundColor: themeColors.cardBackground,
-              },
-            ]}
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
           >
-            <ThemedText style={styles.totalLabel}>
-              Total Spent This Month
-            </ThemedText>
-            <ThemedText style={styles.totalAmount}>
-              ฿{totalThisMonth}
-            </ThemedText>
+            <ActivityIndicator size="large" color={Colors.primary} />
           </View>
-
-          <ThemedText style={styles.sectionTitle}>By Category</ThemedText>
-
-          {categoryRows.map((row) => (
+        ) : (
+          <ScrollView contentContainerStyle={styles.scrollContent}>
             <View
-              key={row.category}
               style={[
-                styles.categoryCard,
+                styles.totalCard,
                 {
                   borderColor: themeColors.border,
                   backgroundColor: themeColors.cardBackground,
                 },
               ]}
             >
-              <View style={styles.categoryLeft}>
-                <ThemedText style={styles.categoryEmoji}>
-                  {row.emoji}
-                </ThemedText>
-                <ThemedText style={styles.categoryName}>
-                  {row.category}
-                </ThemedText>
-              </View>
-              <ThemedText style={styles.categoryAmount}>
-                ฿{row.amount}
+              <ThemedText style={styles.totalLabel}>
+                Total Spent This Month
+              </ThemedText>
+              <ThemedText style={styles.totalAmount}>
+                ฿{totalThisMonth}
               </ThemedText>
             </View>
-          ))}
-        </ScrollView>
+
+            <ThemedText style={styles.sectionTitle}>By Category</ThemedText>
+
+            {categoryRows.map((row) => (
+              <View
+                key={row.category}
+                style={[
+                  styles.categoryCard,
+                  {
+                    borderColor: themeColors.border,
+                    backgroundColor: themeColors.cardBackground,
+                  },
+                ]}
+              >
+                <View style={styles.categoryLeft}>
+                  <ThemedText style={styles.categoryEmoji}>
+                    {row.emoji}
+                  </ThemedText>
+                  <ThemedText style={styles.categoryName}>
+                    {row.category}
+                  </ThemedText>
+                </View>
+                <ThemedText style={styles.categoryAmount}>
+                  ฿{row.amount}
+                </ThemedText>
+              </View>
+            ))}
+          </ScrollView>
+        )}
       </ThemedView>
     </SafeAreaView>
   );

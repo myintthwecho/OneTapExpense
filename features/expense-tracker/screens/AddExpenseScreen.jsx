@@ -3,7 +3,10 @@ import Spacer from "@/components/ui/Spacer";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
+import { useAuth } from "@/features/auth/context/AuthContext";
+import { db } from "@/services/firebase";
 import { useRouter } from "expo-router";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useState } from "react";
 import {
     ScrollView,
@@ -25,9 +28,12 @@ const categories = [
 
 export default function AddExpenseScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const [amount, setAmount] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [note, setNote] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isSaving, setIsSaving] = useState(false);
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme] || Colors.light;
 
@@ -77,13 +83,32 @@ export default function AddExpenseScreen() {
     }
   };
 
-  const handleSaveExpense = () => {
-    console.log("Expense saved", {
-      amount,
-      selectedCategory,
-      date: selectedDate,
-    });
-    router.back();
+  const handleSaveExpense = async () => {
+    if (!amount || !selectedCategory || !user) {
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      const expensesRef = collection(db, "users", user.uid, "expenses");
+      
+      await addDoc(expensesRef, {
+        userId: user.uid,
+        amount: parseFloat(amount),
+        category: selectedCategory,
+        note: note || "",
+        date: selectedDate.toISOString(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+
+      router.back();
+    } catch (error) {
+      console.error("Error saving expense:", error);
+      alert("Failed to save expense. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -122,6 +147,25 @@ export default function AddExpenseScreen() {
             value={amount}
             onChangeText={setAmount}
             keyboardType="decimal-pad"
+          />
+
+          <Spacer height={24} />
+
+          {/* Note Input */}
+          <ThemedText style={styles.label}>Note (Optional)</ThemedText>
+          <TextInput
+            style={[
+              styles.input,
+              {
+                borderColor: themeColors.border,
+                color: themeColors.text,
+                backgroundColor: themeColors.inputBackground,
+              },
+            ]}
+            placeholder="Add a note..."
+            placeholderTextColor={themeColors.iconColour}
+            value={note}
+            onChangeText={setNote}
           />
 
           <Spacer height={24} />
@@ -197,7 +241,10 @@ export default function AddExpenseScreen() {
           <Spacer height={32} />
 
           {/* Save Button */}
-          <PrimaryButton title="Save Expense" onPress={handleSaveExpense} />
+          <PrimaryButton
+            title={isSaving ? "Saving..." : "Save Expense"}
+            onPress={handleSaveExpense}
+          />
         </ScrollView>
       </ThemedView>
 
