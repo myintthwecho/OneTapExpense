@@ -3,7 +3,7 @@ import { useColorScheme, View } from "react-native";
 
 export function ThemedView({ children, style }) {
   const colorScheme = useColorScheme();
-  const bgColor = Colors[colorScheme].background;
+  const bgColor = (Colors[colorScheme] || Colors.light).background;
 
   return <View style={[style, { backgroundColor: bgColor }]}>{children}</View>;
 }
