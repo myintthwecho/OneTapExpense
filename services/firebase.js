@@ -19,13 +19,14 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Debug: Log config to verify env vars are loading
-console.log("🔧 Firebase Configuration:", {
-  projectId: firebaseConfig.projectId,
-  authDomain: firebaseConfig.authDomain,
-  hasApiKey: !!firebaseConfig.apiKey,
-  environment: process.env.NODE_ENV,
-});
+const isDev = __DEV__;
+
+if (isDev) {
+  console.log("Firebase config loaded", {
+    projectId: firebaseConfig.projectId,
+    hasApiKey: !!firebaseConfig.apiKey,
+  });
+}
 
 const app = initializeApp(firebaseConfig);
 
@@ -38,13 +39,17 @@ export const auth =
       });
 export const db = getFirestore(app);
 
-console.log("✅ Firebase initialized successfully");
+if (isDev) {
+  console.log("Firebase initialized successfully");
+}
 
 // Enable persistent auth sessions for web only (native uses initializeAuth persistence).
 if (Platform.OS === "web") {
   setPersistence(auth, browserLocalPersistence)
     .then(() => {
-      console.log("Auth persistence enabled");
+      if (isDev) {
+        console.log("Auth persistence enabled");
+      }
     })
     .catch((error) => {
       console.error("Auth persistence error:", error);

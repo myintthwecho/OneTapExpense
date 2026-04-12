@@ -1,8 +1,9 @@
 {
   "expo": {
     "name": "OneTapExpense",
-    "slug": "OneTapExpense",
+    "slug": "onetapexpense",
     "version": "1.0.0",
+    "icon": "./assets/images/lightlogo.png",
     "orientation": "portrait",
     "scheme": "onetapexpense",
     "userInterfaceStyle": "automatic",
@@ -10,18 +11,38 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.onetapexpense",
+      "versionCode": 1,
+      "permissions": [
+        "INTERNET",
+        "VIBRATE"
+      ],
       "adaptiveIcon": {
+        "foregroundImage": "./assets/images/lightlogo.png",
         "backgroundColor": "#E6F4FE"
       },
       "predictiveBackGestureEnabled": false
     },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "web": {
       "output": "static"
     },
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router",
+      "@react-native-community/datetimepicker"
+    ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "bccb729d-d353-4d2e-82a7-3278f9d2b481"
+      }
+    },
+    "owner": "myinttc"
   }
 }
