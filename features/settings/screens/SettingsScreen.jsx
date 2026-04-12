@@ -114,7 +114,7 @@ export default function SettingsScreen() {
                   <View key={item.label}>
                     <TouchableOpacity
                       style={styles.menuRow}
-                      onPress={() => console.log(`${item.label} pressed`)}
+                      onPress={() => Alert.alert(item.label, "Coming soon")}
                       activeOpacity={0.7}
                     >
                       <View style={styles.menuLeft}>
@@ -158,12 +158,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 20,
     paddingBottom: 30,
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
   },
   profileCard: {
     borderWidth: 1,

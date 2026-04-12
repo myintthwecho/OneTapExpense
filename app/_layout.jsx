@@ -22,7 +22,6 @@ function RootNavigator() {
 
   useEffect(() => {
     if (isLoading) {
-      console.log("Route guard: Still loading auth...");
       return;
     }
 
@@ -30,24 +29,15 @@ function RootNavigator() {
     const isAuthRoute = currentRoute === "login" || currentRoute === "register";
     const isLandingRoute = currentRoute === "index";
 
-    console.log("Route guard:", {
-      user: user?.email || "none",
-      currentRoute,
-      isAuthRoute,
-      isLandingRoute,
-    });
-
     if (!user && !isAuthRoute && !isLandingRoute) {
-      console.log("Redirecting to welcome (no user, protected route)");
       router.replace("/");
       return;
     }
 
     if (user && (isLandingRoute || isAuthRoute)) {
-      console.log("Redirecting to expense-history (user logged in)");
       router.replace("/expense-history");
     }
-  }, [isLoading, segments, user]);
+  }, [isLoading, segments, user, router]);
 
   if (isLoading) {
     return (

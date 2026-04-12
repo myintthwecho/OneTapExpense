@@ -45,108 +45,6 @@ export default function SummaryScreen() {
     return unsubscribe;
   }, [user]);
 
-  const dummyExpenses =
-    expenses.length > 0
-      ? expenses
-      : [
-          {
-            id: 1,
-            category: "food",
-            emoji: "🍜",
-            amount: "12.50",
-            date: "Today",
-            note: "Lunch at cafe",
-          },
-          {
-            id: 2,
-            category: "transport",
-            emoji: "🚆",
-            amount: "5.00",
-            date: "Today",
-            note: "Bus fare",
-          },
-          {
-            id: 3,
-            category: "entertainment",
-            emoji: "🎮",
-            amount: "15.99",
-            date: "Yesterday",
-            note: "Movie ticket",
-          },
-          {
-            id: 4,
-            category: "bills",
-            emoji: "💡",
-            amount: "45.00",
-            date: "Feb 17",
-            note: "Electric bill",
-          },
-          {
-            id: 5,
-            category: "food",
-            emoji: "🍜",
-            amount: "8.75",
-            date: "Feb 17",
-            note: "Dinner",
-          },
-          {
-            id: 6,
-            category: "transport",
-            emoji: "🚆",
-            amount: "3.50",
-            date: "Feb 16",
-            note: "Train ticket",
-          },
-          {
-            id: 7,
-            category: "entertainment",
-            emoji: "🎮",
-            amount: "25.00",
-            date: "Feb 16",
-            note: "Concert ticket",
-          },
-          {
-            id: 8,
-            category: "food",
-            emoji: "🍜",
-            amount: "6.25",
-            date: "Feb 15",
-            note: "Breakfast",
-          },
-          {
-            id: 9,
-            category: "bills",
-            emoji: "💡",
-            amount: "20.00",
-            date: "Feb 15",
-            note: "Internet bill",
-          },
-          {
-            id: 10,
-            category: "transport",
-            emoji: "🚆",
-            amount: "4.50",
-            date: "Feb 14",
-            note: "Taxi",
-          },
-          {
-            id: 11,
-            category: "entertainment",
-            emoji: "🎮",
-            amount: "12.00",
-            date: "Feb 14",
-            note: "Game purchase",
-          },
-          {
-            id: 12,
-            category: "food",
-            emoji: "🍜",
-            amount: "22.00",
-            date: "Feb 13",
-            note: "Dinner with friends",
-          },
-        ];
-
   const parseExpenseDate = (dateString) => {
     return new Date(dateString);
   };
@@ -253,12 +151,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 20,
     paddingBottom: 30,
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 16,
   },
   totalCard: {
     borderWidth: 1,

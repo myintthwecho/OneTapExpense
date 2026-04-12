@@ -76,22 +76,12 @@ export default function ExpenseHistoryScreen() {
   useEffect(() => {
     if (!user) return;
 
-    console.log("📊 Setting up expense listener for user:", user.uid);
-
     const expensesRef = collection(db, "users", user.uid, "expenses");
     const q = query(expensesRef, orderBy("createdAt", "desc"));
 
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        console.log("📥 Expenses loaded from Firebase:", {
-          count: snapshot.docs.length,
-          docs: snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          })),
-        });
-
         const loadedExpenses = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -100,7 +90,6 @@ export default function ExpenseHistoryScreen() {
         setIsLoading(false);
       },
       (error) => {
-        console.error("❌ Error loading expenses:", error);
         console.error("Error details:", {
           code: error.code,
           message: error.message,
@@ -112,114 +101,11 @@ export default function ExpenseHistoryScreen() {
     return unsubscribe;
   }, [user]);
 
-  const dummyExpenses =
-    expenses.length > 0
-      ? expenses
-      : [
-          {
-            id: 1,
-            category: "food",
-            emoji: "🍜",
-            amount: "12.50",
-            date: "Today",
-            note: "Lunch at cafe",
-          },
-          {
-            id: 2,
-            category: "transport",
-            emoji: "🚆",
-            amount: "5.00",
-            date: "Today",
-            note: "Bus fare",
-          },
-          {
-            id: 3,
-            category: "entertainment",
-            emoji: "🎮",
-            amount: "15.99",
-            date: "Yesterday",
-            note: "Movie ticket",
-          },
-          {
-            id: 4,
-            category: "bills",
-            emoji: "💡",
-            amount: "45.00",
-            date: "Feb 17",
-            note: "Electric bill",
-          },
-          {
-            id: 5,
-            category: "food",
-            emoji: "🍜",
-            amount: "8.75",
-            date: "Feb 17",
-            note: "Dinner",
-          },
-          {
-            id: 6,
-            category: "transport",
-            emoji: "🚆",
-            amount: "3.50",
-            date: "Feb 16",
-            note: "Train ticket",
-          },
-          {
-            id: 7,
-            category: "entertainment",
-            emoji: "🎮",
-            amount: "25.00",
-            date: "Feb 16",
-            note: "Concert ticket",
-          },
-          {
-            id: 8,
-            category: "food",
-            emoji: "🍜",
-            amount: "6.25",
-            date: "Feb 15",
-            note: "Breakfast",
-          },
-          {
-            id: 9,
-            category: "bills",
-            emoji: "💡",
-            amount: "20.00",
-            date: "Feb 15",
-            note: "Internet bill",
-          },
-          {
-            id: 10,
-            category: "transport",
-            emoji: "🚆",
-            amount: "4.50",
-            date: "Feb 14",
-            note: "Taxi",
-          },
-          {
-            id: 11,
-            category: "entertainment",
-            emoji: "🎮",
-            amount: "12.00",
-            date: "Feb 14",
-            note: "Game purchase",
-          },
-          {
-            id: 12,
-            category: "food",
-            emoji: "🍜",
-            amount: "22.00",
-            date: "Feb 13",
-            note: "Dinner with friends",
-          },
-        ];
-
   const handleOpenAddExpense = () => {
     router.push("/add-expense");
   };
 
   const handleEditExpense = (expense) => {
-    console.log("📝 Editing expense:", expense);
     router.push({
       pathname: "/add-expense",
       params: {
@@ -233,8 +119,6 @@ export default function ExpenseHistoryScreen() {
   };
 
   const handleDeleteExpense = (expenseId) => {
-    console.log("🗑️ Attempting to delete expense:", expenseId);
-
     // Web uses window.confirm, mobile uses Alert.alert
     if (Platform.OS === "web") {
       const confirmed = window.confirm(
@@ -262,11 +146,8 @@ export default function ExpenseHistoryScreen() {
 
   const deleteExpenseFromFirebase = async (expenseId) => {
     try {
-      console.log("🔥 Deleting from Firestore:", expenseId);
       await deleteDoc(doc(db, "users", user.uid, "expenses", expenseId));
-      console.log("✅ Expense deleted successfully");
     } catch (error) {
-      console.error("❌ Error deleting expense:", error);
       Alert.alert("Error", "Failed to delete expense. Please try again.");
     }
   };
@@ -376,11 +257,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 20,
     paddingBottom: 20,
-  },
-  heading: {
-    fontSize: 28,
-    fontWeight: "bold",
-    textAlign: "center",
   },
   expenseCard: {
     borderWidth: 1,
