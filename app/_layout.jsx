@@ -1,27 +1,23 @@
 import { AuthProvider, useAuth } from "@/features/auth/context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
-    DarkTheme,
-    DefaultTheme,
-    ThemeProvider,
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
 } from "@react-navigation/native";
 import { Stack, useRouter, useSegments } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, useColorScheme, View } from "react-native";
+import { useEffect } from "react";
+import { ActivityIndicator, Text, useColorScheme, View } from "react-native";
 import "react-native-reanimated";
 
-// Keep the splash screen visible while we fetch resources
-SplashScreen.preventAutoHideAsync();
-
 function RootNavigator() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, configError } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
-    if (isLoading) {
+    if (isLoading || configError) {
       return;
     }
 
@@ -37,7 +33,24 @@ function RootNavigator() {
     if (user && (isLandingRoute || isAuthRoute)) {
       router.replace("/expense-history");
     }
-  }, [isLoading, segments, user, router]);
+  }, [isLoading, configError, segments, user, router]);
+
+  if (configError) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          paddingHorizontal: 24,
+        }}
+      >
+        <Text style={{ textAlign: "center" }}>
+          App configuration error. Please contact support.
+        </Text>
+      </View>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -83,32 +96,12 @@ function RootNavigator() {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [appIsReady, setAppIsReady] = useState(false);
 
   useEffect(() => {
-    async function prepare() {
-      try {
-        // Pre-load fonts (needed for @expo/vector-icons on web)
-        await MaterialCommunityIcons.loadFont();
-      } catch (e) {
-        console.warn("Font loading error:", e);
-      } finally {
-        setAppIsReady(true);
-      }
-    }
-
-    prepare();
+    MaterialCommunityIcons.loadFont().catch((e) => {
+      console.warn("Font loading error:", e);
+    });
   }, []);
-
-  useEffect(() => {
-    if (appIsReady) {
-      SplashScreen.hideAsync();
-    }
-  }, [appIsReady]);
-
-  if (!appIsReady) {
-    return null;
-  }
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>

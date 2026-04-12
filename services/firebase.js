@@ -19,6 +19,24 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
+const requiredFirebaseKeys = [
+  "EXPO_PUBLIC_FIREBASE_API_KEY",
+  "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN",
+  "EXPO_PUBLIC_FIREBASE_PROJECT_ID",
+  "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET",
+  "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
+  "EXPO_PUBLIC_FIREBASE_APP_ID",
+];
+
+const missingFirebaseKeys = requiredFirebaseKeys.filter(
+  (key) => !process.env[key],
+);
+
+export const firebaseInitError =
+  missingFirebaseKeys.length > 0
+    ? `Missing Firebase env vars: ${missingFirebaseKeys.join(", ")}`
+    : null;
+
 const isDev = __DEV__;
 
 if (isDev) {
@@ -28,23 +46,33 @@ if (isDev) {
   });
 }
 
-const app = initializeApp(firebaseConfig);
+let app = null;
+let auth = null;
+let db = null;
 
-// Use AsyncStorage-backed persistence on native to avoid web-only auth persistence errors.
-export const auth =
-  Platform.OS === "web"
-    ? getAuth(app)
-    : initializeAuth(app, {
-        persistence: getReactNativePersistence(AsyncStorage),
-      });
-export const db = getFirestore(app);
+if (!firebaseInitError) {
+  app = initializeApp(firebaseConfig);
+
+  // Use AsyncStorage-backed persistence on native to avoid web-only auth persistence errors.
+  auth =
+    Platform.OS === "web"
+      ? getAuth(app)
+      : initializeAuth(app, {
+          persistence: getReactNativePersistence(AsyncStorage),
+        });
+  db = getFirestore(app);
+} else {
+  console.error(firebaseInitError);
+}
+
+export { app, auth, db };
 
 if (isDev) {
   console.log("Firebase initialized successfully");
 }
 
 // Enable persistent auth sessions for web only (native uses initializeAuth persistence).
-if (Platform.OS === "web") {
+if (Platform.OS === "web" && auth) {
   setPersistence(auth, browserLocalPersistence)
     .then(() => {
       if (isDev) {

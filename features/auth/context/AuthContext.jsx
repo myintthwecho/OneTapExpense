@@ -1,4 +1,4 @@
-import { auth } from "@/services/firebase";
+import { auth, firebaseInitError } from "@/services/firebase";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -13,8 +13,14 @@ const AuthContext = createContext(undefined);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [configError] = useState(firebaseInitError);
 
   useEffect(() => {
+    if (configError || !auth) {
+      setIsLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setIsLoading(false);
@@ -24,10 +30,17 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = (email, password) => {
+    if (!auth) {
+      throw new Error(configError || "Firebase Auth is not configured.");
+    }
     return signInWithEmailAndPassword(auth, email.trim(), password);
   };
 
   const register = async ({ email, password, name }) => {
+    if (!auth) {
+      throw new Error(configError || "Firebase Auth is not configured.");
+    }
+
     const credential = await createUserWithEmailAndPassword(
       auth,
       email.trim(),
@@ -44,6 +57,9 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
+    if (!auth) {
+      throw new Error(configError || "Firebase Auth is not configured.");
+    }
     return signOut(auth);
   };
 
@@ -51,11 +67,12 @@ export function AuthProvider({ children }) {
     () => ({
       user,
       isLoading,
+      configError,
       login,
       register,
       logout,
     }),
-    [user, isLoading],
+    [user, isLoading, configError],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
