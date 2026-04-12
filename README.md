@@ -53,3 +53,34 @@ firebase deploy --only firestore:rules,firestore:indexes
 - `date` (non-empty string)
 - `createdAt`
 - `updatedAt`
+
+## Account deletion request flow
+
+The app now includes a `Request Account Deletion` action in Settings.
+
+When a user submits a request, the app creates a Firestore document at:
+
+`users/{uid}/deletionRequests/{requestId}`
+
+With fields:
+
+- `userId`
+- `userEmail`
+- `userDisplayName`
+- `status` (`pending`)
+- `source` (`mobile-app`)
+- `createdAt`
+
+### Admin processing (manual)
+
+1. Open Firestore Console.
+2. Check `users/{uid}/deletionRequests` for pending requests.
+3. Delete user data (for example: `users/{uid}/expenses`).
+4. Delete the Firebase Authentication user from Firebase Console.
+
+### Optional email notifications
+
+If you want an email whenever a request is created, use one of these options:
+
+1. Firebase Extension `Trigger Email` plus a Cloud Function that mirrors each new deletion request into the extension's mail collection.
+2. A Firebase Cloud Function that triggers on `users/{uid}/deletionRequests/{requestId}` and sends email with your preferred provider.

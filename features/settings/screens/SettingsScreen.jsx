@@ -3,6 +3,8 @@ import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/features/auth/context/AuthContext";
+import { db } from "@/services/firebase";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import {
   Alert,
   Image,
@@ -58,6 +60,46 @@ export default function SettingsScreen() {
     } catch {
       Alert.alert("Logout failed", "Please try again.");
     }
+  };
+
+  const submitDeletionRequest = async () => {
+    if (!user?.uid) {
+      Alert.alert("Error", "You need to be logged in to submit a request.");
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "users", user.uid, "deletionRequests"), {
+        userId: user.uid,
+        userEmail: user.email || "",
+        userDisplayName: user.displayName || "",
+        status: "pending",
+        source: "mobile-app",
+        createdAt: serverTimestamp(),
+      });
+
+      Alert.alert(
+        "Request submitted",
+        "Your account deletion request was sent. We will process it shortly.",
+      );
+    } catch (error) {
+      Alert.alert("Error", "Failed to submit request. Please try again.");
+    }
+  };
+
+  const handleRequestDeletion = () => {
+    Alert.alert(
+      "Request account deletion",
+      "This will send a deletion request to support. Your account is not deleted immediately.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Send request",
+          style: "destructive",
+          onPress: submitDeletionRequest,
+        },
+      ],
+    );
   };
 
   return (
@@ -142,6 +184,23 @@ export default function SettingsScreen() {
           ))}
 
           <View style={styles.logoutSection}>
+            <TouchableOpacity
+              onPress={handleRequestDeletion}
+              style={[
+                styles.deleteRequestButton,
+                {
+                  borderColor: "#FF7B7B",
+                  backgroundColor: themeColors.cardBackground,
+                },
+              ]}
+              activeOpacity={0.8}
+            >
+              <ThemedText style={styles.deleteRequestText}>
+                Request Account Deletion
+              </ThemedText>
+            </TouchableOpacity>
+
+            <View style={{ height: 12 }} />
             <PrimaryButton title="Logout" onPress={handleLogout} />
           </View>
         </ScrollView>
@@ -242,5 +301,16 @@ const styles = StyleSheet.create({
   },
   logoutSection: {
     marginTop: 6,
+  },
+  deleteRequestButton: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  deleteRequestText: {
+    color: "#FF7B7B",
+    fontWeight: "700",
   },
 });
