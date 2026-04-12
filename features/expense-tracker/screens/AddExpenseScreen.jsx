@@ -4,19 +4,18 @@ import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/features/auth/context/AuthContext";
-import { db } from "@/services/firebase";
+import useExpenseForm from "@/features/expense-tracker/hooks/useExpenseForm";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
-import { useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
 import {
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  useColorScheme,
-  View,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    useColorScheme,
+    View,
 } from "react-native";
 
 const categories = [
@@ -30,47 +29,31 @@ export default function AddExpenseScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { user } = useAuth();
-  const [amount, setAmount] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [note, setNote] = useState("");
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isSaving, setIsSaving] = useState(false);
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme] || Colors.light;
 
-  const isEditMode = !!params.expenseId;
-  const hasInitialized = useRef(false);
+  const handleSaved = useCallback(() => {
+    router.back();
+  }, [router]);
 
-  // Reset initialization flag when switching between add/edit or when expenseId changes
-  useEffect(() => {
-    hasInitialized.current = false;
-  }, [params.expenseId]);
-
-  useEffect(() => {
-    // Only initialize once when in edit mode with params
-    if (isEditMode && params && !hasInitialized.current) {
-      console.log("📋 Initializing edit form with params:", params);
-
-      setAmount(params.amount || "");
-      setSelectedCategory(params.category || null);
-      setNote(params.note || "");
-      if (params.date) {
-        console.log("📅 Setting date from params:", params.date);
-        setSelectedDate(new Date(params.date));
-      }
-
-      hasInitialized.current = true;
-      console.log("✅ Form initialized for edit mode");
-    } else if (!isEditMode && !hasInitialized.current) {
-      // Reset form for new expense
-      console.log("🆕 Reset form for new expense");
-      setAmount("");
-      setSelectedCategory(null);
-      setNote("");
-      setSelectedDate(new Date());
-      hasInitialized.current = true;
-    }
-  }, [isEditMode, params.expenseId]); // Only depend on expenseId, not the entire params object
+  const {
+    amount,
+    selectedCategory,
+    note,
+    selectedDate,
+    showPicker,
+    isEditMode,
+    submitLabel,
+    canSubmit,
+    errors,
+    setAmount,
+    setSelectedCategory,
+    setNote,
+    openDatePicker,
+    handleDateChange,
+    setShowPicker,
+    submit,
+  } = useExpenseForm({ params, user, onSaved: handleSaved });
 
   const formatDate = (date) => {
     const today = new Date();
@@ -101,107 +84,6 @@ export default function AddExpenseScreen() {
       day: "numeric",
       year: "numeric",
     });
-  };
-
-  const [showPicker, setShowPicker] = useState(false);
-
-  const handleDatePress = () => {
-    setShowPicker(true);
-  };
-
-  const handleDateChange = (event, date) => {
-    if (Platform.OS === "android") {
-      setShowPicker(false);
-    }
-    if (date) {
-      setSelectedDate(date);
-    }
-  };
-
-  const handleSaveExpense = async () => {
-    if (!amount || !selectedCategory || !user) {
-      console.warn("❌ Save blocked: Missing required fields", {
-        amount: !!amount,
-        selectedCategory: !!selectedCategory,
-        user: !!user,
-      });
-      return;
-    }
-
-    try {
-      setIsSaving(true);
-      const now = new Date().toISOString();
-
-      if (isEditMode && params.expenseId) {
-        const expenseRef = doc(
-          db,
-          "users",
-          user.uid,
-          "expenses",
-          params.expenseId,
-        );
-
-        const updateData = {
-          amount: parseFloat(amount),
-          category: selectedCategory,
-          note: note || "",
-          date: selectedDate.toISOString(),
-          updatedAt: now,
-        };
-
-        console.log("📝 Updating expense:", {
-          expenseId: params.expenseId,
-          userId: user.uid,
-          data: updateData,
-        });
-
-        // Wait for update to complete
-        await updateDoc(expenseRef, updateData);
-
-        console.log("✅ Expense updated successfully in Firebase");
-
-        // Navigate back after successful save
-        router.back();
-      } else {
-        const expensesRef = collection(db, "users", user.uid, "expenses");
-
-        const newExpenseData = {
-          userId: user.uid,
-          amount: parseFloat(amount),
-          category: selectedCategory,
-          note: note || "",
-          date: selectedDate.toISOString(),
-          createdAt: now,
-          updatedAt: now,
-        };
-
-        console.log("💾 Saving new expense:", {
-          userId: user.uid,
-          data: newExpenseData,
-        });
-
-        // Wait for save to complete
-        const docRef = await addDoc(expensesRef, newExpenseData);
-
-        console.log("✅ Expense saved successfully to Firebase:", {
-          docId: docRef.id,
-          path: `users/${user.uid}/expenses/${docRef.id}`,
-        });
-
-        // Navigate back after successful save
-        router.back();
-      }
-    } catch (error) {
-      console.error("❌ Error saving expense:", error);
-      console.error("Error details:", {
-        code: error.code,
-        message: error.message,
-        name: error.name,
-      });
-      alert(`Failed to save expense: ${error.message}`);
-    } finally {
-      setIsSaving(false);
-    }
   };
 
   return (
@@ -241,6 +123,9 @@ export default function AddExpenseScreen() {
             onChangeText={setAmount}
             keyboardType="decimal-pad"
           />
+          {!!errors.amount && (
+            <ThemedText style={styles.errorText}>{errors.amount}</ThemedText>
+          )}
 
           <Spacer height={24} />
 
@@ -311,6 +196,9 @@ export default function AddExpenseScreen() {
               );
             })}
           </View>
+          {!!errors.category && (
+            <ThemedText style={styles.errorText}>{errors.category}</ThemedText>
+          )}
 
           <Spacer height={24} />
 
@@ -324,26 +212,30 @@ export default function AddExpenseScreen() {
                 backgroundColor: themeColors.inputBackground,
               },
             ]}
-            onPress={handleDatePress}
+            onPress={openDatePicker}
           >
             <ThemedText style={styles.dateButtonText}>
               {formatDate(selectedDate)}
             </ThemedText>
           </TouchableOpacity>
+          {!!errors.date && (
+            <ThemedText style={styles.errorText}>{errors.date}</ThemedText>
+          )}
+
+          {!!errors.submit && (
+            <>
+              <Spacer height={12} />
+              <ThemedText style={styles.errorText}>{errors.submit}</ThemedText>
+            </>
+          )}
 
           <Spacer height={32} />
 
           {/* Save Button */}
           <PrimaryButton
-            title={
-              isSaving
-                ? "Saving..."
-                : isEditMode
-                  ? "Update Expense"
-                  : "Save Expense"
-            }
-            onPress={handleSaveExpense}
-            disabled={isSaving || !amount || !selectedCategory}
+            title={submitLabel}
+            onPress={submit}
+            disabled={!canSubmit}
           />
         </ScrollView>
       </ThemedView>
@@ -354,7 +246,17 @@ export default function AddExpenseScreen() {
           value={selectedDate}
           mode="date"
           display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={handleDateChange}
+          onChange={(event, date) => {
+            if (Platform.OS === "android") {
+              setShowPicker(false);
+            }
+
+            if (date) {
+              handleDateChange(date, {
+                shouldClosePicker: Platform.OS === "android",
+              });
+            }
+          }}
         />
       )}
     </View>
@@ -429,5 +331,10 @@ const styles = StyleSheet.create({
   dateButtonText: {
     fontSize: 16,
     fontWeight: "500",
+  },
+  errorText: {
+    marginTop: 8,
+    fontSize: 12,
+    color: "#d93025",
   },
 });
