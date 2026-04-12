@@ -2,7 +2,7 @@
   "expo": {
     "name": "OneTapExpense",
     "slug": "onetapexpense",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "icon": "./assets/images/lightlogo.png",
     "orientation": "portrait",
     "scheme": "onetapexpense",
@@ -12,6 +12,7 @@
     },
     "android": {
       "package": "com.onetapexpense",
+      "versionCode": 2,
 
       "permissions": ["INTERNET", "VIBRATE"],
       "adaptiveIcon": {
