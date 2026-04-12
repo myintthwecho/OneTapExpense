@@ -6,15 +6,8 @@ import Colors from "@/constants/Colors";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { db } from "@/services/firebase";
 import { useRouter } from "expo-router";
-import {
-  collection,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  orderBy,
-  query,
-} from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { collection, deleteDoc, doc, onSnapshot } from "firebase/firestore";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -65,6 +58,12 @@ const formatExpenseDate = (dateString) => {
   });
 };
 
+const toExpenseTime = (expense) => {
+  const parsed = new Date(expense?.date);
+  const time = parsed.getTime();
+  return Number.isNaN(time) ? 0 : time;
+};
+
 export default function ExpenseHistoryScreen() {
   const router = useRouter();
   const { user } = useAuth();
@@ -77,10 +76,9 @@ export default function ExpenseHistoryScreen() {
     if (!user) return;
 
     const expensesRef = collection(db, "users", user.uid, "expenses");
-    const q = query(expensesRef, orderBy("createdAt", "desc"));
 
     const unsubscribe = onSnapshot(
-      q,
+      expensesRef,
       (snapshot) => {
         const loadedExpenses = snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -100,6 +98,10 @@ export default function ExpenseHistoryScreen() {
 
     return unsubscribe;
   }, [user]);
+
+  const sortedExpenses = useMemo(() => {
+    return [...expenses].sort((a, b) => toExpenseTime(b) - toExpenseTime(a));
+  }, [expenses]);
 
   const handleOpenAddExpense = () => {
     router.push("/add-expense");
@@ -163,7 +165,7 @@ export default function ExpenseHistoryScreen() {
           </View>
         ) : (
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            {expenses.length === 0 ? (
+            {sortedExpenses.length === 0 ? (
               <View
                 style={{
                   flex: 1,
@@ -177,7 +179,7 @@ export default function ExpenseHistoryScreen() {
                 </ThemedText>
               </View>
             ) : (
-              expenses.map((expense) => (
+              sortedExpenses.map((expense) => (
                 <View
                   key={expense.id}
                   style={[
