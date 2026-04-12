@@ -1,10 +1,14 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "firebase/app";
 import {
-  browserLocalPersistence,
-  getAuth,
-  setPersistence,
+    browserLocalPersistence,
+    getAuth,
+    getReactNativePersistence,
+    initializeAuth,
+    setPersistence,
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { Platform } from "react-native";
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -24,13 +28,20 @@ console.log("🔧 Firebase Configuration:", {
 });
 
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+
+// Use AsyncStorage-backed persistence on native to avoid web-only auth persistence errors.
+export const auth =
+  Platform.OS === "web"
+    ? getAuth(app)
+    : initializeAuth(app, {
+        persistence: getReactNativePersistence(AsyncStorage),
+      });
 export const db = getFirestore(app);
 
 console.log("✅ Firebase initialized successfully");
 
-// Enable persistent auth sessions (async initialization)
-if (typeof window !== "undefined") {
+// Enable persistent auth sessions for web only (native uses initializeAuth persistence).
+if (Platform.OS === "web") {
   setPersistence(auth, browserLocalPersistence)
     .then(() => {
       console.log("Auth persistence enabled");
