@@ -8,7 +8,7 @@ import {
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { ActivityIndicator, Text, useColorScheme, View } from "react-native";
+import { Text, useColorScheme, View } from "react-native";
 import "react-native-reanimated";
 
 function RootNavigator() {
@@ -48,14 +48,6 @@ function RootNavigator() {
         <Text style={{ textAlign: "center" }}>
           App configuration error. Please contact support.
         </Text>
-      </View>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
       </View>
     );
   }
