@@ -12,11 +12,7 @@
     },
     "android": {
       "package": "com.onetapexpense",
-      "versionCode": 1,
-      "permissions": [
-        "INTERNET",
-        "VIBRATE"
-      ],
+      "permissions": ["INTERNET", "VIBRATE"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/lightlogo.png",
         "backgroundColor": "#E6F4FE"
@@ -29,10 +25,7 @@
     "web": {
       "output": "static"
     },
-    "plugins": [
-      "expo-router",
-      "@react-native-community/datetimepicker"
-    ],
+    "plugins": ["expo-router", "@react-native-community/datetimepicker"],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
@@ -43,6 +36,9 @@
         "projectId": "bccb729d-d353-4d2e-82a7-3278f9d2b481"
       }
     },
-    "owner": "myinttc"
+    "owner": "myinttc",
+    "updates": {
+      "url": "https://u.expo.dev/bccb729d-d353-4d2e-82a7-3278f9d2b481"
+    }
   }
 }

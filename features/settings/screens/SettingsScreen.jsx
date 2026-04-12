@@ -4,13 +4,13 @@ import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import {
-    Alert,
-    Image,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    View,
-    useColorScheme,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -76,7 +76,7 @@ export default function SettingsScreen() {
             <View style={styles.profileRow}>
               <View style={styles.avatar}>
                 <Image
-                  source={require("@/assets/images/avt.png")}
+                  source={require("@/assets/images/lightlogo.png")}
                   style={styles.avatarImage}
                 />
               </View>
