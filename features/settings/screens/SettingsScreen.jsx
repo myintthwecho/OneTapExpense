@@ -3,21 +3,24 @@ import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/features/auth/context/AuthContext";
+import useCurrencyPreference from "@/hooks/useCurrencyPreference";
 import { db } from "@/services/firebase";
+import { CURRENCY_OPTIONS, getCurrencyDisplayName } from "@/utils/currency";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import {
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  useColorScheme,
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    View,
+    useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SettingsScreen() {
   const { user, logout } = useAuth();
+  const { currency, setCurrencyPreference } = useCurrencyPreference(user?.uid);
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme] || Colors.light;
 
@@ -39,7 +42,26 @@ export default function SettingsScreen() {
     {
       title: "Preferences",
       items: [
-        { label: "Default Currency", subtext: "Thai Baht (THB)" },
+        {
+          label: "Default Currency",
+          subtext: getCurrencyDisplayName(currency.code),
+          onPress: () => {
+            Alert.alert(
+              "Default Currency",
+              "Choose the currency you want to use for expense amounts.",
+              [
+                ...CURRENCY_OPTIONS.map((option) => ({
+                  text:
+                    option.code === currency.code
+                      ? `${option.label} (${option.code}) - Selected`
+                      : `${option.label} (${option.code})`,
+                  onPress: () => setCurrencyPreference(option.code),
+                })),
+                { text: "Cancel", style: "cancel" },
+              ],
+            );
+          },
+        },
         { label: "Notifications", subtext: "Budget alerts and reminders" },
         { label: "Monthly Budget", subtext: "Set your spending cap" },
       ],
@@ -156,7 +178,10 @@ export default function SettingsScreen() {
                   <View key={item.label}>
                     <TouchableOpacity
                       style={styles.menuRow}
-                      onPress={() => Alert.alert(item.label, "Coming soon")}
+                      onPress={
+                        item.onPress ||
+                        (() => Alert.alert(item.label, "Coming soon"))
+                      }
                       activeOpacity={0.7}
                     >
                       <View style={styles.menuLeft}>

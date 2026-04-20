@@ -2,15 +2,17 @@ import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/features/auth/context/AuthContext";
+import useCurrencyPreference from "@/hooks/useCurrencyPreference";
 import { db } from "@/services/firebase";
+import { formatCurrencyAmount } from "@/utils/currency";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  View,
-  useColorScheme,
+    ActivityIndicator,
+    ScrollView,
+    StyleSheet,
+    View,
+    useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 const categoryMap = {
@@ -22,6 +24,7 @@ const categoryMap = {
 
 export default function SummaryScreen() {
   const { user } = useAuth();
+  const { currencyCode } = useCurrencyPreference(user?.uid);
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme] || Colors.light;
   const [expenses, setExpenses] = useState([]);
@@ -106,7 +109,7 @@ export default function SummaryScreen() {
                 Total Spent This Month
               </ThemedText>
               <ThemedText style={styles.totalAmount}>
-                ฿{totalThisMonth}
+                {formatCurrencyAmount(totalThisMonth, currencyCode)}
               </ThemedText>
             </View>
 
@@ -132,7 +135,7 @@ export default function SummaryScreen() {
                   </ThemedText>
                 </View>
                 <ThemedText style={styles.categoryAmount}>
-                  ฿{row.amount}
+                  {formatCurrencyAmount(row.amount, currencyCode)}
                 </ThemedText>
               </View>
             ))}

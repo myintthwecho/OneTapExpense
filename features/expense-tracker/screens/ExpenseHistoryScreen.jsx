@@ -4,19 +4,21 @@ import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/features/auth/context/AuthContext";
+import useCurrencyPreference from "@/hooks/useCurrencyPreference";
 import { db } from "@/services/firebase";
+import { formatCurrencyAmount } from "@/utils/currency";
 import { useRouter } from "expo-router";
 import { collection, deleteDoc, doc, onSnapshot } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  useColorScheme,
+    ActivityIndicator,
+    Alert,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    View,
+    useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -67,6 +69,7 @@ const toExpenseTime = (expense) => {
 export default function ExpenseHistoryScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { currencyCode } = useCurrencyPreference(user?.uid);
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme] || Colors.light;
   const [expenses, setExpenses] = useState([]);
@@ -200,7 +203,7 @@ export default function ExpenseHistoryScreen() {
                       </ThemedText>
                     </View>
                     <ThemedText style={styles.amount}>
-                      ฿{expense.amount.toFixed(2)}
+                      {formatCurrencyAmount(expense.amount, currencyCode)}
                     </ThemedText>
                   </View>
                   <View style={styles.cardDivider} />

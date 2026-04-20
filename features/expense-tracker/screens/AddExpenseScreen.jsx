@@ -5,6 +5,7 @@ import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import useExpenseForm from "@/features/expense-tracker/hooks/useExpenseForm";
+import useCurrencyPreference from "@/hooks/useCurrencyPreference";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback } from "react";
@@ -29,6 +30,7 @@ export default function AddExpenseScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { user } = useAuth();
+  const { currency } = useCurrencyPreference(user?.uid);
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme] || Colors.light;
 
@@ -107,7 +109,7 @@ export default function AddExpenseScreen() {
           <Spacer height={24} />
 
           {/* Amount Input */}
-          <ThemedText style={styles.label}>Amount</ThemedText>
+          <ThemedText style={styles.label}>Amount ({currency.code})</ThemedText>
           <TextInput
             style={[
               styles.input,
@@ -117,7 +119,7 @@ export default function AddExpenseScreen() {
                 backgroundColor: themeColors.inputBackground,
               },
             ]}
-            placeholder="0.00"
+            placeholder={`0.00 ${currency.symbol}`}
             placeholderTextColor={themeColors.iconColour}
             value={amount}
             onChangeText={setAmount}
