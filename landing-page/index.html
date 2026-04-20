@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="OneTapExpense helps you track every expense quickly, spot spending patterns, and stay in control of your budget."
+    />
+    <title>OneTapExpense | Spend Better, Stress Less</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-blobs" aria-hidden="true">
+      <span class="blob blob-a"></span>
+      <span class="blob blob-b"></span>
+      <span class="blob blob-c"></span>
+    </div>
+
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <a class="brand" href="#top" aria-label="OneTapExpense home"
+          >OneTapExpense</a
+        >
+        <nav class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#privacy">Privacy</a>
+          <a href="#download">Get App</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero section reveal">
+        <div class="container hero-grid">
+          <div>
+            <p class="eyebrow">Personal finance made effortless</p>
+            <h1>
+              Track spending in seconds. Build smarter money habits every day.
+            </h1>
+            <p class="hero-copy">
+              OneTapExpense is your minimalist money companion. Add expenses
+              fast, browse history clearly, and understand where your money goes
+              with instant summaries.
+            </p>
+            <div class="hero-actions" id="download">
+              <a
+                class="btn btn-primary"
+                href="#"
+                aria-label="Download OneTapExpense on Android"
+              >
+                Download on Android
+              </a>
+              <a
+                class="btn btn-secondary"
+                href="#"
+                aria-label="Get OneTapExpense on iOS"
+              >
+                Get on iOS
+              </a>
+            </div>
+            <p class="subtle">No ads. No noise. Just clean expense tracking.</p>
+          </div>
+
+          <aside class="hero-card" aria-label="Monthly spending preview">
+            <h2>April Snapshot</h2>
+            <p class="hero-total">$1,284.64</p>
+            <p class="muted">26 expenses logged</p>
+            <ul class="mini-stats" role="list">
+              <li>
+                <span>Food & Dining</span>
+                <strong>$412</strong>
+              </li>
+              <li>
+                <span>Transport</span>
+                <strong>$186</strong>
+              </li>
+              <li>
+                <span>Utilities</span>
+                <strong>$248</strong>
+              </li>
+              <li>
+                <span>Other</span>
+                <strong>$438</strong>
+              </li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section reveal" id="features">
+        <div class="container">
+          <h2 class="section-title">Why OneTapExpense</h2>
+          <div class="feature-grid">
+            <article class="feature-card">
+              <h3>Quick Add</h3>
+              <p>
+                Capture amount, category, and date in one smooth flow with
+                minimal taps.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Clean History</h3>
+              <p>
+                Review your transactions in a readable timeline that makes
+                trends obvious.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Instant Summary</h3>
+              <p>
+                Get month-level clarity fast so you can adjust spending before
+                it gets away.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Secure Account</h3>
+              <p>
+                Your expense data is tied to your account, with authenticated
+                access controls.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reveal" id="privacy">
+        <div class="container privacy-panel">
+          <h2>Your data, your control</h2>
+          <p>
+            OneTapExpense is designed around practical privacy. You can request
+            account deletion from inside the app settings, and your request is
+            processed through your account records.
+          </p>
+          <a class="text-link" href="#">Read privacy details</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-wrap">
+        <p>© <span id="year"></span> OneTapExpense. All rights reserved.</p>
+        <p class="muted">Built for focused, everyday budgeting.</p>
+      </div>
+    </footer>
+
+    <script src="main.js"></script>
+  </body>
+</html>
