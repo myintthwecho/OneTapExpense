@@ -11,7 +11,8 @@ import {
     SafeAreaView,
     ScrollView,
     StyleSheet,
-    TextInput, useColorScheme
+    TextInput,
+    useColorScheme,
 } from "react-native";
 
 export default function RegisterScreen() {
@@ -19,6 +20,7 @@ export default function RegisterScreen() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme] || Colors.light;
@@ -40,10 +42,18 @@ export default function RegisterScreen() {
   };
 
   const handleRegister = async () => {
-    if (!name.trim() || !email.trim() || !password) {
+    if (!name.trim() || !email.trim() || !password || !confirmPassword) {
       Alert.alert(
         "Missing fields",
-        "Please complete name, email, and password.",
+        "Please complete name, email, password, and confirm password.",
+      );
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert(
+        "Passwords do not match",
+        "Please make sure both password fields are the same.",
       );
       return;
     }
@@ -130,6 +140,25 @@ export default function RegisterScreen() {
             placeholderTextColor={themeColors.iconColour}
             value={password}
             onChangeText={setPassword}
+            secureTextEntry
+          />
+
+          <Spacer height={16} />
+
+          {/* Confirm Password Input */}
+          <TextInput
+            style={[
+              styles.input,
+              {
+                borderColor: themeColors.border,
+                color: themeColors.text,
+                backgroundColor: themeColors.inputBackground,
+              },
+            ]}
+            placeholder="Confirm Password"
+            placeholderTextColor={themeColors.iconColour}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
             secureTextEntry
           />
 
