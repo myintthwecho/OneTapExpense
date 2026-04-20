@@ -48,11 +48,20 @@ export default function SettingsScreen() {
   };
 
   const handleLogout = async () => {
-    try {
-      await logout();
-    } catch {
-      Alert.alert("Logout failed", "Please try again.");
-    }
+    Alert.alert("Logout", "Are you sure you want to log out?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await logout();
+          } catch {
+            Alert.alert("Logout failed", "Please try again.");
+          }
+        },
+      },
+    ]);
   };
 
   const submitDeletionRequest = async () => {
