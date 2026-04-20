@@ -6,7 +6,7 @@ import { useCurrencyPreference } from "@/features/currency/context/CurrencyConte
 import { db } from "@/services/firebase";
 import { formatCurrencyAmount } from "@/utils/currency";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     ActivityIndicator,
     ScrollView,
@@ -52,38 +52,59 @@ export default function SummaryScreen() {
     return new Date(dateString);
   };
 
-  const currentMonth = new Date().getMonth();
-  const currentYear = new Date().getFullYear();
+  const monthlySummaries = useMemo(() => {
+    const referenceDate = new Date();
 
-  const monthlyExpenses = expenses.filter((expense) => {
-    const date = parseExpenseDate(expense.date);
-    return (
-      date.getMonth() === currentMonth && date.getFullYear() === currentYear
-    );
-  });
+    return [0, 1, 2].map((offset) => {
+      const monthDate = new Date(
+        referenceDate.getFullYear(),
+        referenceDate.getMonth() - offset,
+        1,
+      );
+      const year = monthDate.getFullYear();
+      const month = monthDate.getMonth();
 
-  const totalThisMonth = monthlyExpenses
-    .reduce((sum, expense) => sum + Number(expense.amount), 0)
-    .toFixed(2);
+      const monthExpenses = expenses.filter((expense) => {
+        const date = parseExpenseDate(expense.date);
+        return date.getMonth() === month && date.getFullYear() === year;
+      });
 
-  const categoryTotals = monthlyExpenses.reduce((acc, expense) => {
-    if (!acc[expense.category]) {
-      acc[expense.category] = {
-        amount: 0,
-        emoji: categoryMap[expense.category] || "📝",
+      const categoryTotals = monthExpenses.reduce((acc, expense) => {
+        if (!acc[expense.category]) {
+          acc[expense.category] = {
+            amount: 0,
+            emoji: categoryMap[expense.category] || "📝",
+          };
+        }
+        acc[expense.category].amount += Number(expense.amount);
+        return acc;
+      }, {});
+
+      return {
+        key: `${year}-${month}`,
+        label:
+          offset === 0
+            ? "This Month"
+            : offset === 1
+              ? "Previous Month"
+              : "2 Months Ago",
+        monthLabel: monthDate.toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+        }),
+        total: monthExpenses
+          .reduce((sum, expense) => sum + Number(expense.amount), 0)
+          .toFixed(2),
+        categoryRows: Object.entries(categoryTotals).map(
+          ([category, data]) => ({
+            category,
+            emoji: data.emoji,
+            amount: data.amount.toFixed(2),
+          }),
+        ),
       };
-    }
-    acc[expense.category].amount += Number(expense.amount);
-    return acc;
-  }, {});
-
-  const categoryRows = Object.entries(categoryTotals).map(
-    ([category, data]) => ({
-      category,
-      emoji: data.emoji,
-      amount: data.amount.toFixed(2),
-    }),
-  );
+    });
+  }, [expenses]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: themeColors.background }}>
@@ -96,47 +117,75 @@ export default function SummaryScreen() {
           </View>
         ) : (
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            <View
-              style={[
-                styles.totalCard,
-                {
-                  borderColor: themeColors.border,
-                  backgroundColor: themeColors.cardBackground,
-                },
-              ]}
-            >
-              <ThemedText style={styles.totalLabel}>
-                Total Spent This Month
-              </ThemedText>
-              <ThemedText style={styles.totalAmount}>
-                {formatCurrencyAmount(totalThisMonth, currencyCode)}
-              </ThemedText>
-            </View>
+            <ThemedText style={styles.pageTitle}>
+              Last 3 Months Summary
+            </ThemedText>
 
-            <ThemedText style={styles.sectionTitle}>By Category</ThemedText>
+            {monthlySummaries.map((summary) => (
+              <View key={summary.key} style={styles.monthSection}>
+                <ThemedText style={styles.sectionTitle}>
+                  {summary.label} - {summary.monthLabel}
+                </ThemedText>
 
-            {categoryRows.map((row) => (
-              <View
-                key={row.category}
-                style={[
-                  styles.categoryCard,
-                  {
-                    borderColor: themeColors.border,
-                    backgroundColor: themeColors.cardBackground,
-                  },
-                ]}
-              >
-                <View style={styles.categoryLeft}>
-                  <ThemedText style={styles.categoryEmoji}>
-                    {row.emoji}
-                  </ThemedText>
-                  <ThemedText style={styles.categoryName}>
-                    {row.category}
+                <View
+                  style={[
+                    styles.totalCard,
+                    {
+                      borderColor: themeColors.border,
+                      backgroundColor: themeColors.cardBackground,
+                    },
+                  ]}
+                >
+                  <ThemedText style={styles.totalLabel}>Total Spent</ThemedText>
+                  <ThemedText style={styles.totalAmount}>
+                    {formatCurrencyAmount(summary.total, currencyCode)}
                   </ThemedText>
                 </View>
-                <ThemedText style={styles.categoryAmount}>
-                  {formatCurrencyAmount(row.amount, currencyCode)}
+
+                <ThemedText style={styles.byCategoryLabel}>
+                  By Category
                 </ThemedText>
+
+                {summary.categoryRows.length === 0 ? (
+                  <View
+                    style={[
+                      styles.emptyStateCard,
+                      {
+                        borderColor: themeColors.border,
+                        backgroundColor: themeColors.cardBackground,
+                      },
+                    ]}
+                  >
+                    <ThemedText style={styles.emptyStateText}>
+                      No expenses recorded for this month.
+                    </ThemedText>
+                  </View>
+                ) : (
+                  summary.categoryRows.map((row) => (
+                    <View
+                      key={`${summary.key}-${row.category}`}
+                      style={[
+                        styles.categoryCard,
+                        {
+                          borderColor: themeColors.border,
+                          backgroundColor: themeColors.cardBackground,
+                        },
+                      ]}
+                    >
+                      <View style={styles.categoryLeft}>
+                        <ThemedText style={styles.categoryEmoji}>
+                          {row.emoji}
+                        </ThemedText>
+                        <ThemedText style={styles.categoryName}>
+                          {row.category}
+                        </ThemedText>
+                      </View>
+                      <ThemedText style={styles.categoryAmount}>
+                        {formatCurrencyAmount(row.amount, currencyCode)}
+                      </ThemedText>
+                    </View>
+                  ))
+                )}
               </View>
             ))}
           </ScrollView>
@@ -155,11 +204,19 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 30,
   },
+  pageTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 18,
+  },
+  monthSection: {
+    marginBottom: 24,
+  },
   totalCard: {
     borderWidth: 1,
     borderRadius: 14,
     padding: 16,
-    marginBottom: 20,
+    marginBottom: 12,
   },
   totalLabel: {
     fontSize: 14,
@@ -172,6 +229,11 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 10,
+  },
+  byCategoryLabel: {
+    fontSize: 13,
     fontWeight: "600",
     marginBottom: 12,
   },
@@ -200,5 +262,13 @@ const styles = StyleSheet.create({
   categoryAmount: {
     fontSize: 16,
     fontWeight: "bold",
+  },
+  emptyStateCard: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 14,
+  },
+  emptyStateText: {
+    fontSize: 13,
   },
 });
