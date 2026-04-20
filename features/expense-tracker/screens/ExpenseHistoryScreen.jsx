@@ -4,7 +4,7 @@ import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/features/auth/context/AuthContext";
-import useCurrencyPreference from "@/hooks/useCurrencyPreference";
+import { useCurrencyPreference } from "@/features/currency/context/CurrencyContext";
 import { db } from "@/services/firebase";
 import { formatCurrencyAmount } from "@/utils/currency";
 import { useRouter } from "expo-router";

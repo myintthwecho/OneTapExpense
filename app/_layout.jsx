@@ -1,9 +1,10 @@
 import { AuthProvider, useAuth } from "@/features/auth/context/AuthContext";
+import { CurrencyProvider } from "@/features/currency/context/CurrencyContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
+    DarkTheme,
+    DefaultTheme,
+    ThemeProvider,
 } from "@react-navigation/native";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -98,7 +99,9 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <AuthProvider>
-        <RootNavigator />
+        <CurrencyProvider>
+          <RootNavigator />
+        </CurrencyProvider>
       </AuthProvider>
       <StatusBar style="auto" />
     </ThemeProvider>

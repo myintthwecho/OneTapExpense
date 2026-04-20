@@ -3,7 +3,7 @@ import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/features/auth/context/AuthContext";
-import useCurrencyPreference from "@/hooks/useCurrencyPreference";
+import { useCurrencyPreference } from "@/features/currency/context/CurrencyContext";
 import { db } from "@/services/firebase";
 import { CURRENCY_OPTIONS, getCurrencyDisplayName } from "@/utils/currency";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
@@ -30,51 +30,22 @@ export default function SettingsScreen() {
     university: "",
   };
 
-  const menuSections = [
-    {
-      title: "Account",
-      items: [
-        { label: "Profile", subtext: "Update your personal info" },
-        { label: "Payment Methods", subtext: "Manage cards and wallets" },
-        { label: "Security", subtext: "PIN, biometrics, and device" },
+  const handleCurrencyPress = () => {
+    Alert.alert(
+      "Default Currency",
+      "Choose the currency you want to use for expense amounts.",
+      [
+        ...CURRENCY_OPTIONS.map((option) => ({
+          text:
+            option.code === currency.code
+              ? `${option.label} (${option.code}) - Selected`
+              : `${option.label} (${option.code})`,
+          onPress: () => setCurrencyPreference(option.code),
+        })),
+        { text: "Cancel", style: "cancel" },
       ],
-    },
-    {
-      title: "Preferences",
-      items: [
-        {
-          label: "Default Currency",
-          subtext: getCurrencyDisplayName(currency.code),
-          onPress: () => {
-            Alert.alert(
-              "Default Currency",
-              "Choose the currency you want to use for expense amounts.",
-              [
-                ...CURRENCY_OPTIONS.map((option) => ({
-                  text:
-                    option.code === currency.code
-                      ? `${option.label} (${option.code}) - Selected`
-                      : `${option.label} (${option.code})`,
-                  onPress: () => setCurrencyPreference(option.code),
-                })),
-                { text: "Cancel", style: "cancel" },
-              ],
-            );
-          },
-        },
-        { label: "Notifications", subtext: "Budget alerts and reminders" },
-        { label: "Monthly Budget", subtext: "Set your spending cap" },
-      ],
-    },
-    {
-      title: "Support",
-      items: [
-        { label: "Help Center", subtext: "FAQs and guides" },
-        { label: "Feedback", subtext: "Share ideas or report issues" },
-        { label: "About", subtext: "Version and legal" },
-      ],
-    },
-  ];
+    );
+  };
 
   const handleLogout = async () => {
     try {
@@ -160,53 +131,34 @@ export default function SettingsScreen() {
             </View>
           </View>
 
-          {menuSections.map((section) => (
-            <View key={section.title} style={styles.sectionBlock}>
-              <ThemedText style={styles.sectionTitle}>
-                {section.title}
-              </ThemedText>
-              <View
-                style={[
-                  styles.menuCard,
-                  {
-                    borderColor: themeColors.border,
-                    backgroundColor: themeColors.cardBackground,
-                  },
-                ]}
+          <View style={styles.sectionBlock}>
+            <ThemedText style={styles.sectionTitle}>Preferences</ThemedText>
+            <View
+              style={[
+                styles.menuCard,
+                {
+                  borderColor: themeColors.border,
+                  backgroundColor: themeColors.cardBackground,
+                },
+              ]}
+            >
+              <TouchableOpacity
+                style={styles.menuRow}
+                onPress={handleCurrencyPress}
+                activeOpacity={0.7}
               >
-                {section.items.map((item, index) => (
-                  <View key={item.label}>
-                    <TouchableOpacity
-                      style={styles.menuRow}
-                      onPress={
-                        item.onPress ||
-                        (() => Alert.alert(item.label, "Coming soon"))
-                      }
-                      activeOpacity={0.7}
-                    >
-                      <View style={styles.menuLeft}>
-                        <ThemedText style={styles.menuLabel}>
-                          {item.label}
-                        </ThemedText>
-                        <ThemedText style={styles.menuSubtext}>
-                          {item.subtext}
-                        </ThemedText>
-                      </View>
-                      <ThemedText style={styles.menuChevron}>{">"}</ThemedText>
-                    </TouchableOpacity>
-                    {index < section.items.length - 1 && (
-                      <View
-                        style={[
-                          styles.divider,
-                          { backgroundColor: themeColors.border },
-                        ]}
-                      />
-                    )}
-                  </View>
-                ))}
-              </View>
+                <View style={styles.menuLeft}>
+                  <ThemedText style={styles.menuLabel}>
+                    Default Currency
+                  </ThemedText>
+                  <ThemedText style={styles.menuSubtext}>
+                    {getCurrencyDisplayName(currency.code)}
+                  </ThemedText>
+                </View>
+                <ThemedText style={styles.menuChevron}>{">"}</ThemedText>
+              </TouchableOpacity>
             </View>
-          ))}
+          </View>
 
           <View style={styles.logoutSection}>
             <TouchableOpacity
