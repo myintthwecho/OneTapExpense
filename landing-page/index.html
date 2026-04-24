@@ -202,6 +202,14 @@
         animation: floaty 5s ease-in-out infinite;
       }
 
+      .summary-shot {
+        width: 100%;
+        display: block;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+      }
+
       .mockup-head {
         display: flex;
         align-items: center;
@@ -382,23 +390,15 @@
 
         <aside class="mockup" aria-label="App highlight card">
           <div class="mockup-head">
-            <strong>Today Summary</strong>
-            <span>Synced</span>
+            <strong>Summary Screen</strong>
+            <span>Live Preview</span>
           </div>
-          <div class="screen">
-            <div class="tile">
-              <strong>$48.20 Spent</strong>
-              <small>5 entries today</small>
-            </div>
-            <div class="tile">
-              <strong>Top Category: Food</strong>
-              <small>Simple trends from your history</small>
-            </div>
-            <div class="tile">
-              <strong>Currency Ready</strong>
-              <small>Use your preferred money format</small>
-            </div>
-          </div>
+          <img
+            class="summary-shot"
+            src="/assets/images/Screenshot_20260424_135737_OneTapExpense.jpg"
+            alt="OneTapExpense summary screen"
+            loading="lazy"
+          />
         </aside>
       </section>
 
