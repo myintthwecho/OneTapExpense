@@ -1,398 +1,435 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta
-    name="description"
-    content="OneTapExpense helps you record expenses fast, understand spending trends, and stay in control of your budget."
-  />
-  <title>OneTapExpense | Track Spending In Seconds</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,700&display=swap"
-    rel="stylesheet"
-  />
-  <style>
-    :root {
-      --bg-deep: #0f1714;
-      --bg-soft: #18231f;
-      --brand: #1f9f7f;
-      --brand-dim: #5f807b;
-      --text-main: #ecf5f2;
-      --text-sub: #b6c7c0;
-      --card: rgba(255, 255, 255, 0.08);
-      --card-border: rgba(255, 255, 255, 0.14);
-      --glow: rgba(31, 159, 127, 0.35);
-      --shadow: 0 12px 40px rgba(4, 10, 8, 0.45);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Space Grotesk", sans-serif;
-      color: var(--text-main);
-      background:
-        radial-gradient(circle at 10% 5%, rgba(31, 159, 127, 0.28), transparent 50%),
-        radial-gradient(circle at 100% 90%, rgba(74, 144, 226, 0.14), transparent 55%),
-        linear-gradient(150deg, var(--bg-deep), var(--bg-soft));
-      overflow-x: hidden;
-    }
-
-    .page-wrap {
-      width: min(1120px, 92vw);
-      margin: 0 auto;
-      padding: 28px 0 64px;
-      position: relative;
-    }
-
-    .noise-layer {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.04;
-      background-image: radial-gradient(#ffffff 0.6px, transparent 0.6px);
-      background-size: 3px 3px;
-      mix-blend-mode: soft-light;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      animation: reveal 0.7s ease both;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      letter-spacing: 0.2px;
-    }
-
-    .brand img {
-      width: 34px;
-      height: 34px;
-      border-radius: 9px;
-      object-fit: cover;
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
-    }
-
-    .badge {
-      font-size: 13px;
-      padding: 6px 10px;
-      border: 1px solid var(--card-border);
-      border-radius: 999px;
-      color: var(--text-sub);
-      background: rgba(255, 255, 255, 0.04);
-    }
-
-    .hero {
-      padding: 60px 0 34px;
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 24px;
-      align-items: center;
-    }
-
-    .eyebrow {
-      display: inline-block;
-      margin-bottom: 14px;
-      color: #d5efe6;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    h1 {
-      margin: 0;
-      font-family: "Fraunces", serif;
-      font-size: clamp(2rem, 5vw, 4rem);
-      line-height: 1.05;
-      max-width: 16ch;
-    }
-
-    .hero-copy {
-      margin-top: 18px;
-      color: var(--text-sub);
-      font-size: clamp(1rem, 1.2vw, 1.12rem);
-      line-height: 1.75;
-      max-width: 54ch;
-    }
-
-    .hero-actions {
-      margin-top: 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .install-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-height: 48px;
-      padding: 12px 20px;
-      border: 0;
-      border-radius: 14px;
-      background: linear-gradient(120deg, #24af8c, #1f9f7f);
-      color: #f3fffb;
-      font-weight: 700;
-      font-size: 15px;
-      letter-spacing: 0.2px;
-      text-decoration: none;
-      box-shadow: 0 14px 26px -12px var(--glow);
-      transition: transform 160ms ease, box-shadow 160ms ease;
-    }
-
-    .install-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 20px 30px -14px var(--glow);
-    }
-
-    .install-btn:focus-visible {
-      outline: 2px solid #d8fff2;
-      outline-offset: 2px;
-    }
-
-    .text-link {
-      color: #d4ece4;
-      font-size: 14px;
-      opacity: 0.9;
-    }
-
-    .mockup {
-      justify-self: end;
-      width: min(380px, 100%);
-      border-radius: 24px;
-      border: 1px solid var(--card-border);
-      background: linear-gradient(150deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
-      box-shadow: var(--shadow);
-      padding: 18px;
-      backdrop-filter: blur(8px);
-      animation: floaty 5s ease-in-out infinite;
-    }
-
-    .mockup-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-      color: #deeee8;
-      font-size: 14px;
-    }
-
-    .screen {
-      border-radius: 16px;
-      background: rgba(8, 12, 11, 0.64);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 14px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .tile {
-      border-radius: 12px;
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .tile strong {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 14px;
-    }
-
-    .tile small {
-      color: #bfd2cb;
-      font-size: 12px;
-    }
-
-    .features {
-      margin-top: 32px;
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .feature-card {
-      border-radius: 16px;
-      padding: 16px;
-      border: 1px solid var(--card-border);
-      background: var(--card);
-      backdrop-filter: blur(8px);
-      transform: translateY(16px);
-      opacity: 0;
-      animation: rise 0.7s ease forwards;
-    }
-
-    .feature-card:nth-child(2) { animation-delay: 120ms; }
-    .feature-card:nth-child(3) { animation-delay: 220ms; }
-    .feature-card:nth-child(4) { animation-delay: 320ms; }
-
-    .feature-card h3 {
-      margin: 0 0 8px;
-      font-size: 1rem;
-    }
-
-    .feature-card p {
-      margin: 0;
-      color: var(--text-sub);
-      line-height: 1.6;
-      font-size: 0.95rem;
-    }
-
-    .footer {
-      margin-top: 30px;
-      text-align: center;
-      color: #a8bab4;
-      font-size: 13px;
-    }
-
-    @keyframes reveal {
-      from {
-        opacity: 0;
-        transform: translateY(-14px);
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="OneTapExpense helps you record expenses fast, understand spending trends, and stay in control of your budget."
+    />
+    <title>OneTapExpense | Track Spending In Seconds</title>
+    <link rel="icon" type="image/png" href="/assets/images/lightlogo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-deep: #0f1714;
+        --bg-soft: #18231f;
+        --brand: #1f9f7f;
+        --brand-dim: #5f807b;
+        --text-main: #ecf5f2;
+        --text-sub: #b6c7c0;
+        --card: rgba(255, 255, 255, 0.08);
+        --card-border: rgba(255, 255, 255, 0.14);
+        --glow: rgba(31, 159, 127, 0.35);
+        --shadow: 0 12px 40px rgba(4, 10, 8, 0.45);
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
 
-    @keyframes rise {
-      to {
-        opacity: 1;
-        transform: translateY(0);
+      * {
+        box-sizing: border-box;
       }
-    }
 
-    @keyframes floaty {
-      0%, 100% {
-        transform: translateY(0);
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Space Grotesk", sans-serif;
+        color: var(--text-main);
+        background:
+          radial-gradient(
+            circle at 10% 5%,
+            rgba(31, 159, 127, 0.28),
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 100% 90%,
+            rgba(74, 144, 226, 0.14),
+            transparent 55%
+          ),
+          linear-gradient(150deg, var(--bg-deep), var(--bg-soft));
+        overflow-x: hidden;
       }
-      50% {
-        transform: translateY(-8px);
-      }
-    }
 
-    @media (max-width: 900px) {
+      .page-wrap {
+        width: min(1120px, 92vw);
+        margin: 0 auto;
+        padding: 28px 0 64px;
+        position: relative;
+      }
+
+      .noise-layer {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.04;
+        background-image: radial-gradient(#ffffff 0.6px, transparent 0.6px);
+        background-size: 3px 3px;
+        mix-blend-mode: soft-light;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        animation: reveal 0.7s ease both;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+      }
+
+      .brand img {
+        width: 48px;
+        height: 48px;
+        padding: 6px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.95);
+        object-fit: cover;
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.26),
+          0 8px 20px rgba(0, 0, 0, 0.25);
+      }
+
+      .badge {
+        font-size: 13px;
+        padding: 6px 10px;
+        border: 1px solid var(--card-border);
+        border-radius: 999px;
+        color: var(--text-sub);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
       .hero {
-        grid-template-columns: 1fr;
+        padding: 60px 0 34px;
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 24px;
+        align-items: center;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        margin-bottom: 14px;
+        color: #d5efe6;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      h1 {
+        margin: 0;
+        font-family: "Fraunces", serif;
+        font-size: clamp(2rem, 5vw, 4rem);
+        line-height: 1.05;
+        max-width: 16ch;
+      }
+
+      .hero-copy {
+        margin-top: 18px;
+        color: var(--text-sub);
+        font-size: clamp(1rem, 1.2vw, 1.12rem);
+        line-height: 1.75;
+        max-width: 54ch;
+      }
+
+      .hero-actions {
+        margin-top: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .install-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 48px;
+        padding: 12px 20px;
+        border: 0;
+        border-radius: 14px;
+        background: linear-gradient(120deg, #24af8c, #1f9f7f);
+        color: #f3fffb;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 0.2px;
+        text-decoration: none;
+        box-shadow: 0 14px 26px -12px var(--glow);
+        transition:
+          transform 160ms ease,
+          box-shadow 160ms ease;
+      }
+
+      .install-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 30px -14px var(--glow);
+      }
+
+      .install-btn:focus-visible {
+        outline: 2px solid #d8fff2;
+        outline-offset: 2px;
+      }
+
+      .text-link {
+        color: #d4ece4;
+        font-size: 14px;
+        opacity: 0.9;
       }
 
       .mockup {
-        justify-self: stretch;
+        justify-self: end;
+        width: min(380px, 100%);
+        border-radius: 24px;
+        border: 1px solid var(--card-border);
+        background: linear-gradient(
+          150deg,
+          rgba(255, 255, 255, 0.1),
+          rgba(255, 255, 255, 0.02)
+        );
+        box-shadow: var(--shadow);
+        padding: 18px;
+        backdrop-filter: blur(8px);
+        animation: floaty 5s ease-in-out infinite;
+      }
+
+      .mockup-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        color: #deeee8;
+        font-size: 14px;
+      }
+
+      .screen {
+        border-radius: 16px;
+        background: rgba(8, 12, 11, 0.64);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .tile {
+        border-radius: 12px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .tile strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 14px;
+      }
+
+      .tile small {
+        color: #bfd2cb;
+        font-size: 12px;
       }
 
       .features {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 560px) {
-      .page-wrap {
-        width: min(1120px, 94vw);
-        padding-bottom: 44px;
+        margin-top: 32px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
       }
 
-      .hero {
-        padding-top: 36px;
+      .feature-card {
+        border-radius: 16px;
+        padding: 16px;
+        border: 1px solid var(--card-border);
+        background: var(--card);
+        backdrop-filter: blur(8px);
+        transform: translateY(16px);
+        opacity: 0;
+        animation: rise 0.7s ease forwards;
       }
 
-      .features {
-        grid-template-columns: 1fr;
+      .feature-card:nth-child(2) {
+        animation-delay: 120ms;
       }
-    }
-  </style>
-</head>
-<body>
-  <div class="noise-layer" aria-hidden="true"></div>
+      .feature-card:nth-child(3) {
+        animation-delay: 220ms;
+      }
+      .feature-card:nth-child(4) {
+        animation-delay: 320ms;
+      }
 
-  <main class="page-wrap">
-    <header class="topbar">
-      <div class="brand">
-        <img src="../assets/images/lightlogo.png" alt="OneTapExpense logo" />
-        <span>OneTapExpense</span>
-      </div>
-      <span class="badge">Android App</span>
-    </header>
+      .feature-card h3 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+      }
 
-    <section class="hero">
-      <div>
-        <span class="eyebrow">Spend Smarter Daily</span>
-        <h1>One tap to log an expense. One glance to understand your money.</h1>
-        <p class="hero-copy">
-          OneTapExpense makes personal expense tracking fast and clear. Record spending in seconds,
-          review your full history, and keep your budget decisions grounded in real data.
-        </p>
-        <div class="hero-actions">
-          <a
-            class="install-btn"
-            href="https://play.google.com/store/apps/details?id=com.onetapexpense"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Install OneTapExpense from Google Play"
-          >
-            Install on Google Play
-          </a>
-          <span class="text-link">Built for quick daily tracking</span>
+      .feature-card p {
+        margin: 0;
+        color: var(--text-sub);
+        line-height: 1.6;
+        font-size: 0.95rem;
+      }
+
+      .footer {
+        margin-top: 30px;
+        text-align: center;
+        color: #a8bab4;
+        font-size: 13px;
+      }
+
+      @keyframes reveal {
+        from {
+          opacity: 0;
+          transform: translateY(-14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes rise {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes floaty {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+
+        .mockup {
+          justify-self: stretch;
+        }
+
+        .features {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 560px) {
+        .page-wrap {
+          width: min(1120px, 94vw);
+          padding-bottom: 44px;
+        }
+
+        .hero {
+          padding-top: 36px;
+        }
+
+        .features {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="noise-layer" aria-hidden="true"></div>
+
+    <main class="page-wrap">
+      <header class="topbar">
+        <div class="brand">
+          <img src="/assets/images/lightlogo.png" alt="OneTapExpense logo" />
+          <span>OneTapExpense</span>
         </div>
-      </div>
+        <span class="badge">Android App</span>
+      </header>
 
-      <aside class="mockup" aria-label="App highlight card">
-        <div class="mockup-head">
-          <strong>Today Summary</strong>
-          <span>Synced</span>
+      <section class="hero">
+        <div>
+          <span class="eyebrow">Spend Smarter Daily</span>
+          <h1>
+            One tap to log an expense. One glance to understand your money.
+          </h1>
+          <p class="hero-copy">
+            OneTapExpense makes personal expense tracking fast and clear. Record
+            spending in seconds, review your full history, and keep your budget
+            decisions grounded in real data.
+          </p>
+          <div class="hero-actions">
+            <a
+              class="install-btn"
+              href="https://play.google.com/store/apps/details?id=com.onetapexpense"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Install OneTapExpense from Google Play"
+            >
+              Install on Google Play
+            </a>
+            <span class="text-link">Built for quick daily tracking</span>
+          </div>
         </div>
-        <div class="screen">
-          <div class="tile">
-            <strong>$48.20 Spent</strong>
-            <small>5 entries today</small>
-          </div>
-          <div class="tile">
-            <strong>Top Category: Food</strong>
-            <small>Simple trends from your history</small>
-          </div>
-          <div class="tile">
-            <strong>Currency Ready</strong>
-            <small>Use your preferred money format</small>
-          </div>
-        </div>
-      </aside>
-    </section>
 
-    <section class="features" aria-label="Key features">
-      <article class="feature-card">
-        <h3>Fast Expense Logging</h3>
-        <p>Add amount, category, note, and date with a flow designed for speed.</p>
-      </article>
-      <article class="feature-card">
-        <h3>Clear History View</h3>
-        <p>See your latest expenses in one place so you never lose track.</p>
-      </article>
-      <article class="feature-card">
-        <h3>Currency Preference</h3>
-        <p>Use your preferred currency format and keep it consistent across screens.</p>
-      </article>
-      <article class="feature-card">
-        <h3>Secure Cloud Sync</h3>
-        <p>Your data is stored per account so your expense records stay private.</p>
-      </article>
-    </section>
+        <aside class="mockup" aria-label="App highlight card">
+          <div class="mockup-head">
+            <strong>Today Summary</strong>
+            <span>Synced</span>
+          </div>
+          <div class="screen">
+            <div class="tile">
+              <strong>$48.20 Spent</strong>
+              <small>5 entries today</small>
+            </div>
+            <div class="tile">
+              <strong>Top Category: Food</strong>
+              <small>Simple trends from your history</small>
+            </div>
+            <div class="tile">
+              <strong>Currency Ready</strong>
+              <small>Use your preferred money format</small>
+            </div>
+          </div>
+        </aside>
+      </section>
 
-    <p class="footer">OneTapExpense © 2026</p>
-  </main>
-</body>
+      <section class="features" aria-label="Key features">
+        <article class="feature-card">
+          <h3>Fast Expense Logging</h3>
+          <p>
+            Add amount, category, note, and date with a flow designed for speed.
+          </p>
+        </article>
+        <article class="feature-card">
+          <h3>Clear History View</h3>
+          <p>See your latest expenses in one place so you never lose track.</p>
+        </article>
+        <article class="feature-card">
+          <h3>Currency Preference</h3>
+          <p>
+            Use your preferred currency format and keep it consistent across
+            screens.
+          </p>
+        </article>
+        <article class="feature-card">
+          <h3>Secure Cloud Sync</h3>
+          <p>
+            Your data is stored per account so your expense records stay
+            private.
+          </p>
+        </article>
+      </section>
+
+      <p class="footer">OneTapExpense © 2026</p>
+    </main>
+  </body>
 </html>
